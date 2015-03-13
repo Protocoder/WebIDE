@@ -1,4 +1,5 @@
 node_modules
+build
 
 #mac shit
 .DS_Store
