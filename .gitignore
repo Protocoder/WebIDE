@@ -1,0 +1,8 @@
+node_modules
+
+#mac shit
+.DS_Store
+.settings
+
+# Windows shit
+Thumbs.db
