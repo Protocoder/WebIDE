@@ -322,10 +322,11 @@ Ui.prototype.init = function() {
 		}
 	});
 
+	//pushCodeAndRun
 	//run app
 	$("#toolbar #runBtn").click(function() { 
         if (!$.isEmptyObject(currentProject)) { 
-            that.protoEvent.send("runApp", currentProject);    
+            that.protoEvent.send("editor_runApp", currentProject);    
         } else { 
             openPopup();
         } 

@@ -28,6 +28,11 @@ Communication.prototype.initEvents = function() {
 		that.runApp(e.detail)
 	});	
 		
+	this.protoEvent.listen("communication_pushCodeAndRun", function(e) {
+		console.log(e);
+		that.pushCodeAndRun(e.detail)
+	});	
+		
 	this.protoEvent.listen("saveProject", function(e) {
 		that.pushCode(e.detail.currentProject, e.detail.fileName);
 	});	
@@ -106,6 +111,42 @@ Communication.prototype.pushCode = function (project, fileName) {
 	});
 } 
 
+//push the code
+Communication.prototype.pushCodeAndRun = function (e) { 
+	var obj = {};
+	obj.cmd = "push_code_and_run";
+
+	console.log(e);
+	
+	project = e.currentProject;
+	fileName = e.fileName;
+	
+	console.log(project + " " + fileName);
+	var o = new Object();
+	o.name = project.name;
+	o.url = project.url;
+    o.remoteIP = this.remoteIP;
+	o.type = project.type;
+	o.code = project.code;
+	
+	if (!fileName) {
+		o.fileName = "main.js";
+	} else { 
+		o.fileName = fileName;
+	}
+	
+	$.ajax({
+		url:this.remoteIP + "cmd="+JSON.stringify(obj),
+		type: 'post',
+		data: o,
+		success: function(data) {
+			
+		}
+	});
+
+	$("#console_wrapper #console").empty();
+	this.countLogs = 0;
+} 
 
 
 Communication.prototype.executeCode = function (code) { 
@@ -191,7 +232,6 @@ Communication.prototype.runApp = function (project) {
 
 	$("#console_wrapper #console").empty();
 	this.countLogs = 0;
-
 }
 
 

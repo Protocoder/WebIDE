@@ -145,7 +145,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-cssmin');
 	grunt.loadNpmTasks('grunt-contrib-connect');
 
-
 	grunt.registerTask(
 	  'build', 
 	  'Compiles all of the assets and copies the files to the build directory.', 

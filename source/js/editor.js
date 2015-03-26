@@ -40,10 +40,7 @@ Editor.prototype.initEvents = function() {
 	});		
 	
 	that.protoEvent.listen("editor_runApp", function(e) {
-		currentProject.code = that.session.getValue();
-        that.protoEvent.send("communication_pushCode", {"currentProject":currentProject, "fileName":""});
-        that.protoEvent.send("dashboard_removeWidgets");
-        that.protoEvent.send("runApp", currentProject);    
+		that.pushCodeAndRun();
 	});
 }
 
@@ -133,7 +130,8 @@ Editor.prototype.init = function() {
 	    	currentProject.code = session.getValue();
 	    	
 	    	//that.protoEvent.send("saveProject", currentProject);
-	    	that.protoEvent.send("runApp", currentProject);
+	    	that.pushCodeAndRun();
+	    	//that.protoEvent.send("pushCodeAndRun", currentProject);
 	    }
 	});
 
@@ -351,6 +349,12 @@ Editor.prototype.setCode = function (code) {
 }
 
 
+Editor.prototype.pushCodeAndRun = function() {
+	currentProject.code = this.session.getValue();
+    that.protoEvent.send("communication_pushCodeAndRun", {"currentProject":currentProject, "fileName":"main.js"});
+    that.protoEvent.send("dashboard_removeWidgets");
+    that.protoEvent.send("runApp", currentProject);    
+}
 
 //set Code 
 Editor.prototype.saveCode = function () { 
