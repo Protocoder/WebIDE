@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Protocoder</title>
+    <link rel="icon" type="image/png" href="./images/protocoder_icon.png">
+
+    <!-- styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet/less" type="text/less" href="less/main.less" />
+    <link rel="stylesheet" href="fonts/font-awesome-4.3-1.0/css/font-awesome.min.css">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+  	<div class="">
+      	<!-- Left Panel -->
+    	<div id = "left-panel" class="">
+			<h1><span class="accent">&gt;</span>Proto<span class="bolder">coder<span></span></span><span class="accent">_ </span></h1>
+
+          	<ul class="nav nav-sidebar">
+            	<li class="active" data-toggle="modal" data-target="#mymodal"><a href="#"><div class = "icon-box"><div class = "icon-char">+</div></div>New <span class="sr-only">(current)</span></a></li>
+            	<li><a href="#"><div class = "icon-box"><div class = "icon-char">></div></div>Projects</a></li>
+            	<li><a href="#"><div class = "icon-box"><div class = "icon-char">*</div></div>Examples</a></li>
+            	<li><a href="#"><div class = "icon-box"><div class = "icon-char">"</div></div>Preferences</a></li>
+          	</ul>
+
+		    <div id = "device-status">
+	    		<p> Connected to </p>
+	    		<i class = "fa fa-mobile fa-5x" data-container="body" data-toggle="popover" data-placement="right" data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus."></i>
+	    		<p> Phone model </p>
+	    	</div>
+
+
+        </div>
+
+      	<!-- Central Panel -->
+        <div id = "central-panel" class="">
+			<div id = "editor"> 
+  			  	<div id = "project-options"> 
+  			  		<div id = "project-actions" class ="">
+    					<button class = "btn btn-default"> Run </button>
+		    			<button class = "btn btn-default"> Save </button>
+		    			<button class = "btn btn-default"> Save As </button>
+		    		</div>
+
+    				<div class="dropdown" id="overflow">
+						<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
+						:
+						</button>
+						<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+							<li role="presentation"><a role="menuitem" tabindex="-1" href="#">Action</a></li>
+							<li role="presentation"><a role="menuitem" tabindex="-1" href="#">Another action</a></li>
+							<li role="presentation"><a role="menuitem" tabindex="-1" href="#">Something else here</a></li>
+							<li role="presentation"><a role="menuitem" tabindex="-1" href="#">Separated link</a></li>
+						</ul>
+					</div>
+				</div>
+				<ul class="nav nav-tabs">
+				  <li role="presentation" class="active"><a href="#">main.js</a></li>
+				  <li role="presentation"><a href="#">Profile</a></li>
+				</ul>
+				<div id = "code-area"></div>
+      		</div>
+      	</div>
+
+      	<!-- Right Panel -->
+	    <div id = "right-panel" class = "">
+	    	<div class = "content">
+	    		<div id = "quick-reference"></div>
+	    		<div id = "console"> </div>
+	  		</div>
+	    </div>
+
+    </div> <!-- container-fluid -->
+
+
+
+    <!-- modals -->
+    <div class="modal fade" id = "mymodal"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">Create new project</h4>
+	      </div>
+	      <div class="modal-body">
+			  <form>
+		          <div class="form-group">
+		            <label for="project-name" class="control-label">Project name</label>
+		            <input type="text" class="form-control" id="project-name">
+		          </div>
+		       	  
+		        </form>	     
+		    </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	        <button type="button" class="btn btn-primary">Create</button>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+
+    <script src="libs/less.min.js" type="text/javascript"></script>
+
+   <!-- javascript -->
+    <script src="libs/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="libs/ace/ext-language_tools.js"></script>
+   
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script type="text/javascript" src="./libs/jquery-2.1.3.min.js"></script> 
+    <script type="text/javascript"> 
+		$(document).ready(function(){
+  			$('[data-toggle="popover"]').popover()
+			var editor = ace.edit("code-area");
+
+		});
+	</script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+  </body>
+</html>
