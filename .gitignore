@@ -1,9 +1,11 @@
 node_modules
 build
+dist
+npm-debug.log
 
-#mac shit
+#mac thingies
 .DS_Store
 .settings
 
-# Windows shit
+# Windows thingies
 Thumbs.db
