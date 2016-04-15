@@ -69,7 +69,6 @@ export default {
       this.posyel = e.clientY
       this.selected = i
       this.showpopover = !this.showpopover
-      console.log('qq')
     },
     away: function () {
       console.log('you clicked away')
@@ -127,6 +126,11 @@ export default {
 
         &:hover {
           background: rgba(0, 0, 0, 0.3);
+        }
+
+        &.selected {
+          background: white;
+          color: black;
         }
       }
 

@@ -127,9 +127,9 @@ store.copyArray = function (or, dst) {
  */
 var get_url = function (route) {
   // var url = 'http://192.168.100.13:8585'
-  // return '127.0.0.1'
+  return '127.0.0.1'
 
-  return window.location.hostname
+  // return window.location.hostname
 }
 
 var get_url_webapp = function (route) {

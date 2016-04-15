@@ -16,9 +16,7 @@
         <li class = "active" v-for="t in tabs">{{t.name}}</li>
       </ul>
 
-			<div id = "editor">
-{{tabs[currentTab].text}}
-			</div>
+			<div id = "editor">{{tabs[currentTab].text}}</div>
 		</div>
   </div>
 </template>
@@ -74,7 +72,7 @@ export default {
 
     this.editor.setTheme('ace/theme/monokai')
     this.editor.setOptions({
-      fontSize: '18pt',
+      fontSize: '12pt',
       enableBasicAutocompletion: true
     })
     // this.session.setWrapLimitRange(null, null)
@@ -240,8 +238,12 @@ export default {
 }
 
 .ace_editor {
-  font-size: 2em !important;
-  line-height: 1.25em !important;
+  font-size: 1.5em !important;
+  line-height: 1.35em !important;
+}
+
+.ace_dark .ace_gutter-cell.ace_info {
+    background-image: none;
 }
 
 

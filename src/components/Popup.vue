@@ -43,11 +43,10 @@ export default {
   position: absolute;
   width: 300px;
   border-radius: 3px;
-  z-index: 5;
+  z-index: 2;
   border: 0px solid black;
   padding: 20px;
   opacity: 1;
-  z-index: 1;
 
   ul {
     .key {

@@ -70,6 +70,7 @@ export default {
       this.uri.fullpath = this.uri.folder + '/' + folder.name
       // Store.emit('project_action', '/run', this.uri.fullpath)
       Store.emit('project_load', this.uri.fullpath)
+      Store.emit('toggle', 'load_project')
     }
   },
   created () {
@@ -138,7 +139,6 @@ export default {
   	    }
 
         ul {
-          font-size: 1.2em;
           padding: 0.5em;
           font-weight: 500;
         }
