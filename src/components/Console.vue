@@ -7,31 +7,42 @@
         <li>c</li>
       </ul>
     </div>
-    <div class = "content">
-      <ul v-for="file in files">
-        <li> {{file.text}} </li>
+    <div v-el:log class = "content">
+      <ul>
+        <li v-for="file in files | limitBy 10000000"> {{file.text}} </li>
       </ul>
     </div>
   </div>
 </template>
 
 <script>
+import Store from '../Store'
+
 export default {
   name: 'Console',
   data () {
     return {
       msg: 'Hello World!',
       files: [
-        { type: 'text', text: 'qq.png' },
-        { type: 'text', text: 'qq.png' },
-        { type: 'text', text: 'qq.png' },
-        { type: 'text', text: 'qq.png' },
-        { type: 'text', text: 'qq.png' },
-        { type: 'text', text: 'qq.png' },
-        { type: 'text', text: 'qq.png' },
-        { type: 'text', text: 'qq.png' }
+        { type: 'log', text: 'qq.png' }
       ]
     }
+  },
+  methods: {
+    console: function (data) {
+      this.files.push({type: 'log', text: data.log})
+      // $('#console #logs').scrollTo(0, 0)
+      var ul = this.$els.log.getElementsByTagName('ul')
+
+      ul.scrollTop = '10000px' // ul.scrollHeight
+      // scrollIntoView()
+    }
+  },
+  created () {
+    Store.on('console', this.console)
+  },
+  destroyed () {
+    Store.remove_listener('console', this.console)
   }
 }
 </script>

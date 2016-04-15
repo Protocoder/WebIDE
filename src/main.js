@@ -75,4 +75,4 @@ router.redirect({
   '/': '/editor'
 })
 
-router.start(App, '#app')
+router.start(App, 'app')

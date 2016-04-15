@@ -15,13 +15,18 @@
 
         </div>
         <div class="right">
-          <p>Double click to open</p>
+
           <div class = "right-container">
-            <div class="img-cover"></div>
-            <div class = "actions">
-              <div class="action-element"></div>
-              <div class="action-element"></div>
-              <div class="action-element"></div>
+
+            <div class = "project_info">
+              <p>Double click to open</p>
+
+              <div class="img-cover"></div>
+              <div class = "actions">
+                <div class="action-element"></div>
+                <div class="action-element"></div>
+                <div class="action-element"></div>
+              </div>
             </div>
 
             <ul>
@@ -82,34 +87,41 @@ export default {
 #projects-panel {
 
   .panel-container {
+    ul {
+      text-align: left;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+      li {
+        padding: 5px;
+        font-size: 1.5em;
+        font-family: Roboto;
+        font-weight: 300;
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.69);
+          border-radius: 1px;
+          color: black;
+        }
+      }
+    }
+
     .left {
       height: 100%;
-      overflow-y: scroll;
-
-      ul {
-      	list-style: none;
-      	margin: 0;
-      	padding: 0;
-
-      	li {
-      		padding: 5px;
-          font-size: 1.5em;
-
-      		&:hover {
-      			background-color: rgba(255, 255, 255, 0.69);
-      			border-radius: 1px;
-      			color: black;
-      		}
-      	}
-      }
+      overflow-y: auto;
     }
 
     .right {
       .right-container {
       	text-align: center;
 
+        .project_info {
+          display: none;
+        }
+
   	    .img-cover {
-  	        width: 100px;
+          width: 100px;
   		    height: 100px;
   		    background-color: blue;
   	    }
@@ -125,9 +137,10 @@ export default {
   	    	}
   	    }
 
-        li {
+        ul {
           font-size: 1.2em;
           padding: 0.5em;
+          font-weight: 500;
         }
 
    		}

@@ -11,7 +11,6 @@
     </div>
   </div>
 
-    <tabs> </tabs>
   	<div id = "editor_container" class = "main_shadow">
       <ul class = "nav_tabs">
         <li class = "active" v-for="t in tabs">{{t.name}}</li>
@@ -29,8 +28,6 @@ import Store from '../Store'
 
 import ProjectLoad from './ProjectLoad'
 import ProjectNew from './ProjectNew'
-
-// import Tabs from './Tabs'
 
 export default {
   name: 'Editor',
@@ -57,7 +54,11 @@ export default {
   },
   ready () {
     console.log('editor loaded')
+    console.log(ace)
+
     var ace_ = ace
+    console.log(ace_)
+
     this.editor = ace_.edit('editor')
 
     this.Range = ace_.require('ace/range').Range
@@ -82,6 +83,8 @@ export default {
     renderer.setPadding(8)
 
     this.session.setMode('ace/mode/javascript')
+    this.session.setUseSoftTabs(true)
+    this.session.setTabSize(2)
 
     var that = this
     this.session.on('change', function (e) {
@@ -90,7 +93,6 @@ export default {
       console.log(that.session.getValue())
       that.$log()
     })
-
   },
   created () {
     Store.on('project_loaded', this.load_project)

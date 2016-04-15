@@ -37,7 +37,7 @@ export default {
   },
   methods: {
     fetchTutorial: function (selected) {
-      this.$http({ url: '/tutorials/tut' + selected + '.txt', method: 'GET' }).then(function (response) {
+      this.$http({ url: 'static/tutorials/tut' + selected + '.txt', method: 'GET' }).then(function (response) {
         this.loaded_tutorial = { name: selected, text: response.data }
         // console.log(data)
       }, function (response) {

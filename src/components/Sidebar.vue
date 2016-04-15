@@ -13,7 +13,7 @@
     <ul id = "menu">
       <div class = "editor_set">
         <li id = "m_editor" v-link="{ name: 'editor', params: { id: 1 }, activeClass: 'selected' }"><span class = "icon-box">*</span><span>Editor</span></li>
-        <div class = "editor_options"   v-if="$route.name === 'editor'" transition="banner-anim2">
+        <div class = "editor_options" v-if="$route.name === 'editor'" transition="banner-anim2">
           <li id = "new" v-on:click="toggle('new_project')" class="active" data-toggle="modal" data-target="#mymodal"><div class = "icon-box"><div class = "icon-char">+</div></div>New</li>
           <li id = "projects" v-on:click="toggle('load_project')"><div class = "icon-box">></div>Projects</li>
           <li id = "examples" v-on:click="toggle('load_example')"><div class = "icon-box">*</div>Examples</li>
@@ -33,9 +33,6 @@ import Store from '../Store'
 
 export default {
   name: 'Sidebar',
-  data () {
-
-  },
   methods: {
     toggle: function (what) {
       // api.project_list_all("", function() {

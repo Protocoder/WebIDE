@@ -4,10 +4,7 @@
 
 <script>
 export default {
-  name: 'Logo',
-  data () {
-
-  }
+  name: 'Logo'
 }
 </script>
 
