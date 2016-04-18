@@ -4,6 +4,7 @@ const store = new EventEmitter()
 export default store
 
 var TAG = 'store'
+var DEBUG = true
 
 // constants
 var WEBAPP_PORT = 8585
@@ -13,6 +14,7 @@ var WS_PORT = 8587
  * Global state variables
  */
 var state = {
+  DEBUG,
   projects: [],
   examples: [],
   current_project: { },
@@ -127,9 +129,11 @@ store.copyArray = function (or, dst) {
  */
 var get_url = function (route) {
   // var url = 'http://192.168.100.13:8585'
-  return '127.0.0.1'
-
-  // return window.location.hostname
+  if (DEBUG) {
+    return '127.0.0.1'
+  } else {
+    return window.location.hostname
+  }
 }
 
 var get_url_webapp = function (route) {

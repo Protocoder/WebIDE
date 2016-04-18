@@ -18,7 +18,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr id = "files" v-for = "file in files" v-on:click = "showcontent($index, $event)">
+          <tr id = "files" v-bind:class="{ 'selected': selected == $index }" v-for = "file in files" v-on:click = "showcontent($index, $event)">
             <td> {{{file.type | fa_icon}}} </td>
             <td> {{file.filename}} </td>
             <td> {{file.size}} </td>
@@ -49,6 +49,8 @@ export default {
   data () {
     return {
       showpopover: false,
+      qq: true,
+      selected: -1,
       files: [
         { type: 'folder-o', filename: 'qq1.png', size: '25kb' },
         { type: 'folder-o', filename: 'qq2.png', size: '25kb' },

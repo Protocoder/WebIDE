@@ -13,7 +13,7 @@
 
   	<div id = "editor_container" class = "main_shadow">
       <ul class = "nav_tabs">
-        <li class = "active" v-for="t in tabs">{{t.name}}</li>
+        <li v-bind:class="{'active': currenttab == $index }" v-for="t in tabs">{{t.name}}</li>
       </ul>
 
 			<div id = "editor">{{tabs[currentTab].text}}</div>
@@ -39,9 +39,10 @@ export default {
       show_load_example: false,
       show_load_project: false,
       run_button_state: 'run',
-      currentTab: 0,
+      currenttab: 0,
       tabs: [
-        { name: 'main.js', text: '' }
+        { name: 'main.js', text: '' },
+        { name: 'main2.js', text: '' }
       ]
     }
   },
