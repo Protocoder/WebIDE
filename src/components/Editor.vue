@@ -39,7 +39,7 @@ export default {
       show_load_example: false,
       show_load_project: false,
       run_button_state: 'run',
-      currenttab: 0,
+      currentTab: 0,
       tabs: [
         { name: 'main.js', text: '' },
         { name: 'main2.js', text: '' }
