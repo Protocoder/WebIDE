@@ -86,7 +86,7 @@ export default {
   font-size: 0.8em;
   font-weight: 100;
   font-family: 'Open Sans';
-  padding: 15px 52px;
+  padding: 15px 25px;
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.2);
@@ -111,8 +111,8 @@ export default {
   width: 36px;
   background: transparent none repeat scroll 0% 0%;
   border: 1px solid rgba(255, 255, 255, 0.53);
-  margin: 12px 6px;
-  padding: 3px;
+  margin: 12px auto;
+  padding: 1px;
   border-radius: 3px;
 
   &.rotate {
