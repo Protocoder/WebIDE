@@ -1,31 +1,34 @@
 <template>
-  <div id="wrapper">
-
-    <div id = "left_panel">
+  <div id="main_container">
+    <div id = "left_container" class = "container">
       <logo></logo>
       <sidebar></sidebar>
       <device></device>
     </div>
 
-    <div id = "central_panel">
+    <div id = "central_container" class = "container">
+      <editor></editor>
 
-      <router-view
-        class="view"
-        @route-data-loaded = "changeTitle"
-        keep-alive
-        transition="banner-anim"
-        transition-mode="out-in">
-      </router-view>
 
       <!--
       <banner v-if="$route.name === 'editor' " transition="banner-anim">qq<a href="https://www.google.es"> google.es </a></banner>
       -->
     </div>
 
-    <div id = "right_panel">
-      <div id ="panels">
-        <file-manager></file-manager>
-        <console></console>
+    <div id = "right_container" class = "container">
+      <div id = "panels">
+        <router-view
+          class="view proto_panel"
+          @route-data-loaded = "changeTitle"
+          keep-alive
+          transition="banner-anim"
+          transition-mode="out-in">
+        </router-view>
+
+        <div id ="editor_panels">
+          <file-manager></file-manager>
+          <console></console>
+        </div>
       </div>
     </div>
 
@@ -95,52 +98,45 @@ export default {
 @import "assets/css/variables.less";
 @import "assets/css/hacks.less";
 
-html {
-  height: 100%;
-}
-
 body {
-  overflow: hidden;
 	font-family: Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif;
   color: @primaryTextColor;
 	background: @primaryBackground;
 	font-size: @defaultFontSize;
-	min-width: 700px;
   overflow: hidden;
   background: linear-gradient(0deg, #716938, #415A71)
 }
 
-.main-container {
-	opacity: 0;
+#main_container {
+  display: flex;
+  height: 100vh;
+  flex-flow: row;
+  flex-flow: row nowrap;
 
-	&.show {
-		transition: opacity 300ms ease-in-out;
-		opacity: 1;
-	}
+  .container {
+    padding: 0px 10px;
+  }
 }
 
-#left_panel {
-
+#left_container {
+  display: flex;
+  flex-flow: column;
+  order: 1;
 }
 
-#central_panel {
-  position: absolute;
-  left: 170px;
-  right: 270px;
-  top: 0px;
-  bottom: 0px;
+#central_container {
+  order: 2;
+  flex: 2;
 }
 
-#right_panel {
-  position: absolute;
-  width: 270px;
-  right: 0px;
-  top: 0;
-  bottom: 0;
+#right_container {
+  order: 3;
+  flex: 1;
+  min-width: 250px;
+  max-width: 550px;
 }
 
 /********* global thingies **/
-
 button {
 	border-radius: 0px;
 	cursor: pointer;
@@ -168,7 +164,9 @@ button {
   border: 0px;
 }
 
-.panel {
+.editor_panel {
+  display: flex;
+  flex-flow: row;
   background-color: rgba(255, 255, 255, 0.34);
   color: white;
   padding: 10px 15px;
@@ -176,58 +174,66 @@ button {
   height: 400px;
   z-index: 1;
 
-  .panel-container {
-  	width: 100%;
-		height: 100%;
+ 	.left, .right {
+    overflow-y: auto;
+    padding: 5px;
+    box-sizing: border-box;
+ 	}
 
-   	.left {
-   		float: left;
-			width: 65%;
-   	}
-
-		.right {
-			float: right;
-	    border-left: 1px solid rgba(255, 255, 255, 0.27);
-	    height: 100%;
-	    padding-left: 10px;
-	    width: 30%;
-		}
+  .left {
+    flex: 0.60;
   }
-}
 
+	.right {
+    flex: 0.40;
+    border-left: 1px solid rgba(255, 255, 255, 0.27);
+	}
+
+}
 
 #panels {
   margin-top: 80px;
   width: 100%;
   height: 100%;
-  padding: 0px 10px;
   box-sizing: border-box;
 }
 
 .proto_panel {
+  color: black;
+  padding: 15px 10px;
+  overflow: hidden;
+  box-sizing: border-box;
 	position: relative;
   width: 100%;
   border-radius: 2px;
-  padding: 0px;
   margin-bottom: 12px;
   font-family: 'Open Sans';
   color: white;
-  border: 0px solid rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0);
+  height: 200px;
   .anim-fast;
 
   &:hover {
-      border: 0px solid @primaryAccent;
+    border: 1px solid @primaryAccent;
+
+    .actionbar ul {
+      opacity: 1;
+    }
+  }
+
+  &:hover > ul {
   }
 
 	.actionbar {
-		padding: 12px 0px 12px 0px;
+    display: flex;
+    height: 25px;
 
 	  h1 {
-			padding: 5px 18px;
 	    text-align: left;
 	    color: #ccc;
 	    text-transform: lowercase;
 	    font-weight: 600;
+      flex: 1;
 
 			.filename {
 				text-decoration: underline;
@@ -235,32 +241,26 @@ button {
 	  }
 
 		ul {
-			position: absolute;
-			top: 8px;
-			right: 0;
+      opacity: 0;
 
 			li {
 				display: inline-block;
-				background-color: black;
-				padding: 8px 10px;
+				padding: 0px 5px;
 				cursor: pointer;
+        color: rgba(255, 255, 255, 0.5);
 
 				&:hover {
-					background-color: #555;
+          color: white;
 				}
 			}
 
 		}
 	}
 
-}
-
-.floatleft {
-	float: left;
-}
-
-.floatright {
-	float: right;
+  .content {
+    height: calc(~"100% - 1em");
+    overflow-y: auto;
+  }
 }
 
 /* always present */
@@ -287,6 +287,23 @@ button {
 .banner-anim2-enter, .banner-anim2-leave {
   transform: translate3d(0px, -20px, 0) scale3d(1, 1, 1);
   opacity: 0;
+}
+
+
+/* adjust to different sizes */
+@media screen and (max-width: 600px) {
+  #left_container {
+    display: none;
+    flex-flow: row;
+  }
+
+  #right_container {
+    display: none;
+  }
+
+  #myeditor {
+    padding: 0px;
+  }
 }
 
 </style>

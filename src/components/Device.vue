@@ -79,14 +79,18 @@ export default {
 @import "../assets/css/variables.less";
 
 #device_info {
+  order: 3;
+  align-self: flex-end;
   cursor: pointer;
   text-align: center;
-  bottom: 0;
-  position: absolute;
   font-size: 0.8em;
   font-weight: 100;
   font-family: 'Open Sans';
-  padding: 15px 25px;
+  width: 100%;
+  margin: 10px 0px;
+  border-radius: 2px;
+  padding: 10px;
+  box-sizing: border-box;
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.2);

@@ -4,10 +4,9 @@ import App from './App'
 import './assets/css/font-awesome/css/font-awesome.min.css'
 import Router from 'vue-router'
 import Resource from 'vue-resource'
-import Editor from './components/Editor.vue'
 import Login from './components/Login.vue'
 import TutorialLoader from './components/TutorialLoader'
-import Help from './components/Help'
+import About from './components/About'
 import Preferences from './components/Preferences'
 import $ from 'jquery'
 // import Store from './Store'
@@ -42,7 +41,6 @@ router.map({
   },
   '/editor': {
     name: 'editor',
-    component: Editor,
     subRoutes: {
       '/': {
         component: {
@@ -56,9 +54,9 @@ router.map({
     title: 'Tutorial',
     component: TutorialLoader
   },
-  'help': {
-    name: 'help',
-    component: Help
+  'about': {
+    name: 'about',
+    component: About
   },
   '/preferences': {
     name: 'preferences',

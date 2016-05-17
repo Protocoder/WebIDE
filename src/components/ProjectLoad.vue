@@ -1,40 +1,28 @@
 <template>
   <!-- Project List Panel -->
-  <div class = "panel main_shadow" id="projects-panel">
-    <div class="panel-container">
-        <div class="left">
-          {{id}}
-          {{state.id}}
-          {{state.length}}
-          <div class = "project_list" v-for="p in state.projects">
-            <h1> {{p.name}} </h1>
-            <ul>
-              <li v-for = "f in p.files" v-bind:class="{'selected':selected == $index}" v-on:click = "choose_folder($parent.$index, $index, $event)" id = "{{f.name}}"> {{f.name}} </li>
-            </ul>
-          </div>
+  <div class = "editor_panel main_shadow">
+    <div class="left">
+      <div class = "project_list" v-for="p in state.projects">
+        <h1> {{p.name}} </h1>
+        <ul>
+          <li v-for = "f in p.files" v-bind:class="{'selected':selected == $index}" v-on:click = "choose_folder($parent.$index, $index, $event)" id = "{{f.name}}"> {{f.name}} </li>
+        </ul>
+      </div>
 
+    </div>
+    <div class="right">
+      <div class = "project_info">
+        <p>Double click to open</p>
+        <div class="img-cover"></div>
+        <div class = "actions">
+          <div class="action-element"></div>
+          <div class="action-element"></div>
+          <div class="action-element"></div>
         </div>
-        <div class="right">
-
-          <div class = "right-container">
-
-            <div class = "project_info">
-              <p>Double click to open</p>
-
-              <div class="img-cover"></div>
-              <div class = "actions">
-                <div class="action-element"></div>
-                <div class="action-element"></div>
-                <div class="action-element"></div>
-              </div>
-            </div>
-
-            <ul>
-              <li v-for = "f in folder_chosen" v-on:click = "load_project(f)"> {{f.name}} </li>
-            </ul>
-
-          </div>
-        </div>
+      </div>
+      <ul>
+        <li v-for = "f in folder_chosen" v-on:click = "load_project(f)"> {{f.name}} </li>
+      </ul>
     </div>
    </div>
 </template>
@@ -87,67 +75,57 @@ export default {
 <style lang='less'>
 @import "../assets/css/variables.less";
 
-#projects-panel {
+.editor_panel {
+  ul {
+    text-align: left;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 
-  .panel-container {
-    ul {
-      text-align: left;
-      list-style: none;
-      margin: 0;
-      padding: 0;
+    li {
+      padding: 5px;
+      font-size: 1.5em;
+      font-family: Roboto;
+      font-weight: 300;
 
-      li {
-        padding: 5px;
-        font-size: 1.5em;
-        font-family: Roboto;
-        font-weight: 300;
-
-        &:hover, &.selected {
-          background-color: rgba(255, 255, 255, 0.69);
-          border-radius: 1px;
-          color: black;
-        }
+      &:hover, &.selected {
+        background-color: rgba(255, 255, 255, 0.69);
+        border-radius: 1px;
+        color: black;
       }
     }
+  }
 
-    .left {
-      height: 100%;
-      overflow-y: auto;
+  .right {
+  	text-align: center;
+
+    .project_info {
+      display: none;
     }
 
-    .right {
-      .right-container {
-      	text-align: center;
+    .img-cover {
+      width: 100px;
+      height: 100px;
+      background-color: blue;
+    }
 
-        .project_info {
-          display: none;
-        }
+    .actions {
+    	margin-top: 10px;
 
-  	    .img-cover {
-          width: 100px;
-  		    height: 100px;
-  		    background-color: blue;
-  	    }
+    	.action-element {
+    		width: 20px;
+  		  height: 20px;
+  		  background-color: green;
+  		  display: inline-block;
+    	}
+    }
 
-  	    .actions {
-  	    	margin-top: 10px;
-
-  	    	.action-element {
-  	    		width: 20px;
-  				  height: 20px;
-  				  background-color: green;
-  				  display: inline-block;
-  	    	}
-  	    }
-
-        ul {
-          padding: 0.5em;
-          font-weight: 500;
-        }
-
-   		}
+    ul {
+      padding: 0.5em;
+      font-weight: 500;
     }
   }
+
 }
 
 </style>

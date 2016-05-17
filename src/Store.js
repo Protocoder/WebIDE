@@ -130,7 +130,7 @@ store.copyArray = function (or, dst) {
 var get_url = function (route) {
   // var url = 'http://192.168.100.13:8585'
   if (DEBUG) {
-    return '127.0.0.1'
+    return '192.168.1.98'
   } else {
     return window.location.hostname
   }

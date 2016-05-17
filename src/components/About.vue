@@ -1,7 +1,7 @@
 <template>
-  <div id = "preferences" class = "proto_panel">
+  <div id = "about" class = "proto_panel">
     <div class = "actionbar">
-      <h1>Preferences</h1>
+      <h1>About</h1>
     </div>
     <div class = "content">
     </div>
@@ -10,9 +10,10 @@
 
 <script>
 export default {
-  name: 'Preferences',
+  name: 'About',
   data () {
     return {
+
     }
   },
   methods: {
@@ -20,7 +21,7 @@ export default {
   },
   route: {
     data () {
-      this.title = 'Preferences'
+      this.title = 'About'
     }
   },
   created () {
@@ -32,11 +33,9 @@ export default {
 }
 </script>
 <style lang = "less">
-@import "../assets/css/variables.less";
-
-#panels #preferences {
+#panels #about {
   background: white;
   color: black;
-  height: 200px;
+  height: 100px;
 }
 </style>

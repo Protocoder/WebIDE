@@ -1,36 +1,30 @@
 <template>
   <!-- Project Creation Panel -->
-  <div class = "panel main_shadow" id="new-project-panel">
-    <div class="panel-container">
-      <div class = "left">
+  <div class = "editor_panel main_shadow" id="editor_panel_new">
+    <div class = "left">
+      <form class="">
+        <!-- info input -->
+        <label for="choosefolder">choose a folder</label>
+        <select id="choosefolder" name="choosefolder" class="form-control">
+          <option value="1">Option one</option>
+          <option value="2">Option two</option>
+        </select>
 
-        <form class="">
-          <!-- info input -->
-          <label for="choosefolder">choose a folder</label>
-          <select id="choosefolder" name="choosefolder" class="form-control">
-            <option value="1">Option one</option>
-            <option value="2">Option two</option>
-          </select>
+        <label for="projectname">project name</label>
+        <input id="projectname" name="projectname" type="text" placeholder=":)" class="form-control input-md" required="">
 
-          <label for="projectname">project name</label>
-          <input id="projectname" name="projectname" type="text" placeholder="placeholder" class="form-control input-md" required="">
-
-          <div class = "login-bottom">
-            <label for="create"></label>
-            <button id="create" name="create" class="btn btn-success">Create</button>
-            <button id="cancel" name="cancel" class="btn btn-default">Cancel</button>
-          </div>
-        </form>
-
-      </div>
-
-      <div class="right">
-        <div class = "right-container">
-            <p>Create a new project</p>
+        <div class = "login_bottom">
+          <label for="create"></label>
+          <button id="create" name="create" class="btn btn-success">Create</button>
+          <button id="cancel" name="cancel" class="btn btn-default">Cancel</button>
         </div>
-      </div>
+      </form>
     </div>
-   </div>
+
+    <div class="right">
+      <p>Create a new project</p>
+    </div>
+  </div>
 
 </template>
 
@@ -43,14 +37,17 @@ export default {
 <style lang='less'>
 @import "../assets/css/variables.less";
 
-#new-project-panel {
+#editor_panel_new {
+  height: 300px;
 
   label {
-    font-size: 1.5em;
+    font-size: 1em;
+    line-height: 2em;
+    color: rgba(255, 255, 255, 0.59);
   }
 
   select, input {
-    padding: 12px 0px;
+    padding: 12px 10px;
     margin: 8px 0px 28px 0px;
     width: 100%;
     border-radius: 2px;
@@ -58,7 +55,11 @@ export default {
     border: none;
     width: 100%;
     outline: none;
-    box-sizing: content-box;
+    box-sizing: border-box;
+  }
+
+  .login_bottom {
+    text-align: center;
   }
 
 }

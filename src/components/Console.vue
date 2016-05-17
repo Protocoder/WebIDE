@@ -3,8 +3,8 @@
     <div class = "actionbar">
       <h1> console </h1>
       <ul>
-        <li>s</li>
-        <li>c</li>
+        <li class="fa fa-lock"></li>
+        <li class="fa fa-trash"></li>
       </ul>
     </div>
     <div v-el:log class = "content">
@@ -53,7 +53,6 @@ export default {
 #console {
   background: rgba(0, 0, 0, 0.8);
   color: white;
-  overflow: auto;
   height: 300px;
 
   .content ul {

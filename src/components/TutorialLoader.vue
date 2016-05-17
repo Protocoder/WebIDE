@@ -1,9 +1,13 @@
 <template>
-  <div class = "tutorial">
-    <div class = "tutorial_chooser">
-      <a v-for="t in tutorial_files" v-link="{ name: 'tutorial', params: { id: t.id }, activeClass: 'selected' }">Tutorial {{t.id}}</a>
+  <div id = "tutorial" class = "proto_panel">
+    <div class = "actionbar">
+      <div class = "tutorial_chooser">
+        <a v-for="t in tutorial_files" v-link="{ name: 'tutorial', params: { id: t.id }, activeClass: 'selected' }">Tutorial {{t.id}}</a>
+      </div>
     </div>
-    <div v-html = "loaded_tutorial.text | marked"></div>
+    <div class = "content">
+      <div v-html = "loaded_tutorial.text | marked"></div>
+    </div>
   </div>
 </template>
 
@@ -80,13 +84,11 @@ export default {
   }
 }
 
-.tutorial {
-  overflow-y: scroll;
-  height: 100%;
+#panels #tutorial {
+  overflow-y: hidden;
   color: #222;
   background-color: white;
   .main_shadow;
-  padding: 15px;
   line-height: 1.2em;
   font-size: 1.2em;
 

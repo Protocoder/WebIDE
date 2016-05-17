@@ -13,11 +13,12 @@ export default {
 
 /* logo */
 h1.logo {
+  order: 1;
   color: white;
   font-family: 'Source Code Pro';
   font-size: 1.2em;
   font-weight: 100;
-  margin: 30px 0em 1.5em 2em;
+  margin: 34px 0em 33px 2em;
 
   .accent {
     color: @primaryAccent;

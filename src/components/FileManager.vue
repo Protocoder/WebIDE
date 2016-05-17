@@ -3,8 +3,7 @@
     <div class = "actionbar">
       <h1><span class = "filename">Hello World</span> Files</h1>
       <ul>
-        <li>u</li>
-        <li>qq</li>
+        <li class="fa fa-folder"></li>
       </ul>
     </div>
     <div class = "content">
@@ -61,8 +60,8 @@ export default {
         { type: 'file-o', filename: 'qq.png', size: '25kb' },
         { type: 'file-o', filename: 'qq.png', size: '25kb' },
         { type: 'file-o', filename: 'qq.png', size: '25kb' },
-        { type: 'file-o', filename: 'qq.png', size: '25kb' },
-        { type: 'file-o', filename: 'qq.png', size: '25kb' }
+        { type: 'file-o', filename: 'qqm.png', size: '25kb' },
+        { type: 'file-o', filename: 'qqmm.png', size: '25kb' }
       ]
     }
   },
@@ -91,10 +90,9 @@ export default {
 
 #file_manager {
   z-index: 2;
-  overflow: auto;
+  background: rgba(0, 0, 0, 0.2);
 
   .actionbar {
-    background: rgba(0, 0, 0, 0.2);
   }
 
   table {
@@ -103,8 +101,7 @@ export default {
     cursor: pointer;
 
     thead {
-      background: rgba(0, 0, 0, 0.2);
-      color: white;
+      color: rgba(255, 255, 255, 0.5);
 
       th {
         padding:5px;
@@ -124,8 +121,6 @@ export default {
       }
 
       tr {
-      	background: rgba(0, 0, 0, 0.2);
-
         &:hover {
           background: rgba(0, 0, 0, 0.3);
         }

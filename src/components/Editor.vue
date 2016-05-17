@@ -12,10 +12,13 @@
   </div>
 
   	<div id = "editor_container" class = "main_shadow">
-      <ul class = "nav_tabs">
-        <li v-bind:class="{'active': currenttab == $index }" v-for="t in tabs">{{t.name}}</li>
-      </ul>
 
+      <div id = "nav_tabs">
+        <ul id = "tabs">
+          <li v-bind:class="{'active': currenttab == $index }" v-for="t in tabs">{{t.name}}</li>
+        </ul>
+        <div id = "add_tab" class = "fa fa-plus"></div>
+      </div>
 			<div id = "editor">{{tabs[currentTab].text}}</div>
 		</div>
   </div>
@@ -92,6 +95,35 @@ export default {
       console.log(that.session.getValue())
       that.$log()
     })
+
+    /*
+    Vue.transition('banner-anim', {
+      beforeEnter: function (el) {
+        console.log('beforeEnter')
+      },
+      enter: function (el) {
+        console.log('enter')
+      },
+      afterEnter: function (el) {
+        console.log('afterEnter')
+      },
+      enterCancelled: function (el) {
+        // handle cancellation
+      },
+      beforeLeave: function (el) {
+        console.log('beforeLeave')
+      },
+      leave: function (el) {
+        console.log('leave')
+      },
+      afterLeave: function (el) {
+        console.log('afterLeave')
+      },
+      leaveCancelled: function (el) {
+        // handle cancellation
+      }
+    })
+    */
   },
   created () {
     Store.on('project_loaded', this.load_project)
@@ -174,12 +206,12 @@ export default {
 
 #myeditor {
   height: 100%;
-  padding: 0px 10px;
 }
 
 #editor_container {
+  position: relative;
   width: 100%;
-  height: 100%;
+  height: calc(~"100% - 123px"); /* hack */
   z-index: 2;
   transition: transform 300ms ease-in-out;
 
@@ -191,43 +223,63 @@ export default {
     height:100%;
   }
 
-  ul.nav_tabs {
+  #nav_tabs {
+    display: flex;
+    flex-flow: row nowrap;
     background-color: white;
     border-bottom: 0px;
     border-radius: 1px;
     padding-left: 0;
     margin-bottom: 0;
-    list-style: none;
-    color: black;
 
-    li {
-      display: inline-block;
-      padding: 15px 20px;
+    #tabs {
+      flex: 2;
+      list-style: none;
+      color: black;
+
+      li {
+        display: inline-block;
+        padding: 15px 20px;
+        cursor: pointer;
+        .anim-fast;
+
+        &.active {
+           border-bottom: 4px solid @primaryAccent;
+        }
+
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        a {
+          margin-left: 15px;
+          font-size: 0.8em;
+          margin-bottom: 0px;
+          border-radius: 2px 2px 0px 0px;
+          border: 0px;
+        }
+      }
+    }
+
+    #add_tab {
       cursor: pointer;
-      .anim-fast;
+      color: rgba(0, 0, 0, 0.5);
+      padding: 1.3em;
+    }
 
-      &.active {
-         border-bottom: 4px solid @primaryAccent;
-      }
+    #add_tab:hover {
+      background: rgba(0, 0, 0, 0.1);
+    }
 
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.1);
-      }
-
-      a {
-        margin-left: 15px;
-        font-size: 0.8em;
-        margin-bottom: 0px;
-        border-radius: 2px 2px 0px 0px;
-        border: 0px;
-      }
+    #add_tab:active {
+      background: rgba(0, 0, 0, 0.5);
     }
   }
 }
 
 #project-options {
   user-select: none;
-  padding: 25px 0px 25px 0px;
+  padding: 26px 0px 26px 0px;
 }
 
 /*
@@ -245,6 +297,14 @@ export default {
 
 .ace_dark .ace_gutter-cell.ace_info {
     background-image: none;
+}
+
+
+/* adjust to different sizes */
+@media screen and (max-width: 600px) {
+  #myeditor {
+    padding: 0px;
+  }
 }
 
 
