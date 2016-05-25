@@ -4,12 +4,12 @@
       <h1> console </h1>
       <ul>
         <li class="fa fa-lock"></li>
-        <li class="fa fa-trash"></li>
+        <li class="fa fa-trash" v-on:click="clear()"></li>
       </ul>
     </div>
     <div v-el:log class = "content">
       <ul>
-        <li v-for="file in files | limitBy 10000000"> {{file.text}} </li>
+        <li v-for="log in logs | limitBy 10000000" class={{log.action}}> {{log.text}} </li>
       </ul>
     </div>
   </div>
@@ -23,17 +23,21 @@ export default {
   data () {
     return {
       msg: 'Hello World!',
-      files: []
+      logs: [{action: 'error', text: 'potato'}]
     }
   },
   methods: {
     console: function (data) {
-      this.files.push({type: 'log', text: data.log})
+      this.logs.push({action: data.action, text: data.data})
       // $('#console #logs').scrollTo(0, 0)
       var ul = this.$els.log.getElementsByTagName('ul')
 
       ul.scrollTop = '10000px' // ul.scrollHeight
       // scrollIntoView()
+    },
+    clear: function () {
+      console.log('clear')
+      this.logs = []
     }
   },
   created () {
@@ -60,6 +64,20 @@ export default {
       font-family: Source Code Pro;
       line-height: 1.8em;
       .anim-fast;
+
+      &.log_error {
+        border-left: 2px solid @error;
+      }
+
+      &.log_error::before {
+        content: "error";
+        background: @error;
+        padding: 1px 2px;
+      }
+
+      &.log_error:hover {
+        background: lighten(@error, 10%)
+      }
 
       &:hover {
         background-color: rgba(255, 255, 255, 0.1);

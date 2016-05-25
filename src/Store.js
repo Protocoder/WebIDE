@@ -143,7 +143,7 @@ store.copyArray = function (or, dst) {
 var get_url = function (route) {
   // var url = 'http://192.168.100.13:8585'
   if (DEBUG) {
-    // return '192.168.1.128'
+    // return '192.168.1.57'
     return '127.0.0.1'
   } else {
     return window.location.hostname
@@ -183,12 +183,16 @@ store.websockets_init = function () {
     var data = JSON.parse(e.data)
 
     // getting console data
-    if (data.action === 'console') {
-      store.emit('console', data)
-
-    // getting device data
-    } else if (data.action === 'device') {
-      store.emit('device', data)
+    switch (data.module) {
+      case 'console':
+        console.log(e)
+        store.emit('console', data)
+        break
+      // getting device data
+      case 'device':
+        store.emit('device', data)
+        break
+      default:
     }
   }
 

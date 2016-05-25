@@ -5,6 +5,28 @@
       <ul>
         <li class="fa fa-folder"></li>
       </ul>
+
+      <!--
+      <div id = "drag_overlay"><i class = "fa fa-download fa-5x"></i></div>
+
+      <div>
+        <form id="upload" action="index.html" method="POST" enctype="multipart/form-data">
+        <fieldset>
+          <legend>HTML File Upload</legend>
+          <input type="hidden" id="MAX_FILE_SIZE" name="MAX_FILE_SIZE" value="300000" />
+          <div>
+            <label for="fileselect">Files to upload:</label>
+            <input type="file" id="fileselect" name="fileselect[]" multiple="multiple" />
+            <div id="filedrag">or drop files here</div>
+          </div>
+          <div id="submitbutton">
+            <button type="submit">Upload Files</button>
+          </div>
+        </fieldset>
+        </form>
+      </div>
+      -->
+
     </div>
     <div class = "content">
       <table>
@@ -76,6 +98,56 @@ export default {
       this.showpopover = false
     }
   },
+  ready () {
+    console.log('ready')
+    // var fileselect = document.getElementById('fileselect')
+    var filedrag = document.getElementById('file_manager')
+    // var submitbutton = document.getElementById('submitbutton')
+
+    console.log(filedrag)
+
+    // check if file d&d is supported
+    if (window.File && window.FileList && window.FileReader && window.Blob) {
+      // filedrag.style.display = 'block'
+      console.log('qq')
+      filedrag.addEventListener('dragover', function (e) {
+        console.log('dragover')
+        e.stopPropagation()
+        e.preventDefault()
+        e.target.className = 'dragover'
+        // filedrag.className = 'dragover'
+        e.dataTransfer.dropEffect = 'copy'
+      }, false)
+
+      /*
+      filedrag.addEventListener('dragleave', function (e) {
+        console.log('dragleave')
+        e.stopPropagation()
+        e.preventDefault()
+        // e.target.className = ''
+      }, false)
+      */
+      filedrag.addEventListener('drop', function (e) {
+        e.stopPropagation()
+        e.preventDefault()
+        var files = e.dataTransfer.files
+        var file = files[0]
+        console.log(file)
+        window.alert(file.name + ' ' + file.size + ' ' + file.type)
+      }, false)
+      /*
+      filedrag.addEventListener('dragend', function () {
+        console.log('dragend')
+      }, false)
+      filedrag.addEventListener('dragover', function () {
+        console.log('dragover')
+      }, false)
+      filedrag.addEventListener('dragexit', function () {
+        console.log('dragexit')
+      }, false)
+      */
+    }
+  },
   created () {
 
   },
@@ -88,11 +160,18 @@ export default {
 <style lang='less'>
 @import "../assets/css/variables.less";
 
+
+&.dragover {
+  border: 2px solid red;
+  background: red;
+}
+
 #file_manager {
   z-index: 2;
   background: rgba(0, 0, 0, 0.2);
 
   .actionbar {
+    
   }
 
   table {

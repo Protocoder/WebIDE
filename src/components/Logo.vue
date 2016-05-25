@@ -1,5 +1,10 @@
 <template>
-  <h1 class = "logo"><span class="accent">&gt;</span>Proto<span class="bolder">coder<span></span></span><span class="accent">_ </span></h1>
+  <h1 class = "logo">
+  \\\\\\\\
+    <!--
+    <span class="accent">&gt;</span>Proto<span class="bolder">coder<span></span></span><span class="accent">_ </span>
+    -->
+  </h1>
 </template>
 
 <script>
@@ -19,6 +24,9 @@ h1.logo {
   font-size: 1.2em;
   font-weight: 100;
   margin: 34px 0em 33px 2em;
+
+  color: rgba(255, 255, 255, 0.1);
+  font-weight: 800;
 
   .accent {
     color: @primaryAccent;

@@ -233,8 +233,13 @@ export default {
 <style lang = "less">
 @import "../assets/css/variables.less";
 
+
 #myeditor {
   height: 100vh;
+
+  button {
+    width: 85px;
+  }
 }
 
 #editor_container {

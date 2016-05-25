@@ -31,7 +31,7 @@
         <div id ="editor_panels">
           <file-manager></file-manager>
           <console></console>
-          <dashboard></dashboard>
+          <!-- <dashboard></dashboard> -->
         </div>
       </div>
     </div>
@@ -219,6 +219,10 @@ button {
   &:hover {
     background-color: white;
     color: black;
+  }
+
+  &:active {
+    background: rgb(200, 200, 200)
   }
 }
 

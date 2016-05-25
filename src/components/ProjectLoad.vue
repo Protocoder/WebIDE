@@ -76,11 +76,23 @@ export default {
 @import "../assets/css/variables.less";
 
 .editor_panel {
+  .project_list {
+    margin-bottom: 12px;
+
+    h1 {
+      color: @primaryAccent;
+      font-weight: 600;
+      padding: 5px 0px;;
+    }
+    
+  }
+
   ul {
     text-align: left;
     list-style: none;
     margin: 0;
     padding: 0;
+    cursor: pointer;
 
     li {
       padding: 5px;
@@ -92,6 +104,10 @@ export default {
         background-color: rgba(255, 255, 255, 0.69);
         border-radius: 1px;
         color: black;
+      }
+
+      &:active {
+        background: rgba(0, 0, 0, 0.1);
       }
     }
   }
