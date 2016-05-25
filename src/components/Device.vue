@@ -129,7 +129,7 @@ export default {
 
   #device_screen {
     .all-transitions;
-    width: 35px;
+    width: 34px;
     height: 55px;
     background: rgba(255, 255, 255, 0.06) none repeat scroll 0% 0%;
     border: 1px solid rgba(255, 255, 255, 0.17);

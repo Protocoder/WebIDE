@@ -10,9 +10,9 @@
     "e2e": "node test/e2e/runner.js",
     "test": "npm run unit && npm run e2e",
     "deploy": "cp -r ./dist/* ../AndroidApp/protocoder_app/src/main/assets/webide/",
-    "buildanddeploy": "npm run build && npm run cleandeploy && npm run deploy ",
+    "buildAndDeploy": "npm run build && npm run cleanAndDeploy && npm run deploy ",
     "clean": "rm -rf ./dist",
-    "cleandeploy": "rm -rf ../AndroidApp/protocoder_app/src/main/assets/webide/*",
+    "cleanAndDeploy": "rm -rf ../AndroidApp/protocoder_app/src/main/assets/webide/*",
     "predev": "echo --> Starting WEBIDE"
   },
   "dependencies": {
@@ -82,6 +82,7 @@
     "less": "^2.3.1",
     "less-loader": "^2.2.2",
     "marked": "^0.3.5",
-    "vue-clickaway": "^1.1.1"
+    "vue-clickaway": "^1.1.1",
+    "resize-handle": "4.0.0"
   }
 }

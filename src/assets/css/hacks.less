@@ -3,9 +3,8 @@
 }
 
 /*
-* WEBKIT SCROLLBARS
-*/
-
+ * WEBKIT SCROLLBARS
+ */
 ::-webkit-scrollbar {
   width: 8px;  /* for vertical scrollbars */
   height: 8px; /* for horizontal scrollbars */
@@ -18,4 +17,15 @@
 ::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.2);
   border-radius: 2px;
+}
+
+/*
+ * Remove the border after clicking on button
+ */
+button {
+  outline: none;
+}
+
+button::-moz-focus-inner {
+   border: 0;
 }

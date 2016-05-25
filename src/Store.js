@@ -3,7 +3,7 @@ import { EventEmitter } from 'events'
 const store = new EventEmitter()
 export default store
 
-var TAG = 'store'
+// var TAG = 'store'
 var DEBUG = true
 
 // constants
@@ -34,19 +34,19 @@ store.vm = vm
  * List all projects
  */
 store.project_list_all = function () {
-  console.log(TAG + ': project_list_all(query)')
+  // console.log(TAG + ': project_list_all(query)')
   var query = { }
 
   var folder = 'examples/'
 
   Vue.http({ url: get_url_webapp('/api/project/list/' + folder), method: 'GET', data: query }).then(function (response) {
-    console.log(TAG + ': project_list_all(status) > ' + response.status)
+    // console.log(TAG + ': project_list_all(status) > ' + response.status)
     // copyArray(response.data, store.examples)
 
     store.state.projects = response.data
     vm.$log()
   }, function (response) {
-    console.log(TAG + ': project_list_all(status) > ' + response.status)
+    // console.log(TAG + ': project_list_all(status) > ' + response.status)
   })
 }
 
@@ -57,11 +57,11 @@ store.project_load = function (uri) {
   var query = { }
 
   Vue.http({ url: get_url_webapp('/api/project/load' + uri), method: 'GET', data: query }).then(function (response) {
-    console.log(TAG + ': project_load(status) > ' + response.status)
+    // console.log(TAG + ': project_load(status) > ' + response.status)
     store.state.current_project = response.data
     store.emit('project_loaded')
   }, function (response) {
-    console.log(TAG + ': project_load(status) > ' + response.status)
+    // console.log(TAG + ': project_load(status) > ' + response.status)
   })
 }
 
@@ -76,11 +76,10 @@ store.project_save = function () {
 
   Vue.http.post(get_url_webapp('/api/project/save' + this.get_current_project()), query).then(
   function (response) {
-    console.log(TAG + ': project_save(status) > ' + response.status)
-
+    // console.log(TAG + ': project_save(status) > ' + response.status)
     // store.emit('project_saved')
   }, function (response) {
-    console.log(TAG + ': project_save(status) > ' + response.status)
+    // console.log(TAG + ': project_save(status) > ' + response.status)
   })
 }
 
@@ -88,13 +87,27 @@ store.project_save = function () {
  * Run a project
  */
 store.project_action = function (action) {
-  // store.current.project
   var query = { }
 
   Vue.http({ url: get_url_webapp('/api/project' + action + this.get_current_project()), method: 'GET', data: query }).then(function (response) {
-    console.log(response.status)
+    // console.log(response.status)
   }, function (response) {
-    console.log(response.status)
+    // console.log(response.status)
+  })
+}
+
+/*
+ * Execute a code line
+ */
+store.execute_code = function (code) {
+  console.log('execute_code ' + code)
+  var query = { code: code }
+
+  Vue.http.post(get_url_webapp('/api/project/execute_code' + this.get_current_project()), query).then(function (response) {
+    // console.log(response.status)
+
+  }, function (response) {
+    // console.log(response.status)
   })
 }
 
@@ -130,7 +143,8 @@ store.copyArray = function (or, dst) {
 var get_url = function (route) {
   // var url = 'http://192.168.100.13:8585'
   if (DEBUG) {
-    return '192.168.1.98'
+    // return '192.168.1.128'
+    return '127.0.0.1'
   } else {
     return window.location.hostname
   }
@@ -147,37 +161,41 @@ var get_url_ws = function () {
 /*
 * Websockets for rapid communication
 */
+var ws
+var wsIsConnected = false
 var reconnection_interval
 
 store.websockets_init = function () {
   var that = this
 
-  var url = get_url_ws()
-  console.log('trying to connect to ' + url)
-
-  var ws = new WebSocket(get_url_ws())
-  console.log(ws)
+  // console.log('trying to connect to ' + get_url_ws())
+  ws = new WebSocket(get_url_ws())
 
   ws.onopen = function () {
-    console.log('ws connected')
+    // console.log('ws connected')
+    wsIsConnected = true
     clearInterval(reconnection_interval) // _s the reconnection
     // this.protoEvent.send('ui_appConnected', true)
   }
 
   ws.onmessage = function (e) {
-    console.log('ws message', e.data)
-
+    // console.log('ws message', e.data)
     var data = JSON.parse(e.data)
+
+    // getting console data
     if (data.action === 'console') {
       store.emit('console', data)
+
+    // getting device data
     } else if (data.action === 'device') {
       store.emit('device', data)
     }
   }
 
   ws.onclose = function () {
-    console.log('ws disconnected')
+    // console.log('ws disconnected')
     // this.protoEvent.send('ui_appConnected', false)
+    wsIsConnected = false
 
     // try to reconnect
     reconnection_interval = setTimeout(function () {
@@ -185,6 +203,10 @@ store.websockets_init = function () {
       that.websockets_init()
     }, 1000)
   }
+}
+
+store.send_ws_data = function (data) {
+  if (wsIsConnected) ws.send(data)
 }
 
 store.websockets_init()

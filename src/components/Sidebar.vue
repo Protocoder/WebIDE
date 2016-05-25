@@ -1,16 +1,16 @@
 <template>
 
   <!-- navigation -->
-  <div id = "sidebar">
+  <nav id = "sidebar">
     <!-- -->
     <ul class = "menu_separation">
-      <li id = "new" v-on:click="toggle('new_project')" v-link="{activeClass: 'selected'}"><div class = "icon-box">+</div>New</li>
+      <li id = "new_project" v-on:click="toggle($event)" v-link="{activeClass: 'selected'}" v-bind:class = "{'selected':'new_project' == navitem }"><div class = "icon-box">+</div>New</li>
     </ul>
 
     <ul class = "menu_separation">
-      <li id = "projects" v-on:click="toggle('load_project')" v-bind:class = "{'selected':'qq' === 'qw'}"><div class = "icon-box">/</div>Projects</li>
-      <li id = "examples" v-on:click="toggle('load_example')"><div class = "icon-box">/</div>Examples</li>
-      <li id = "demos" v-on:click="toggle('load_demo')"><div class = "icon-box">/</div>Demos</li>
+      <li id = "load_project" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_project' == navitem }"><div class = "icon-box">/</div>Projects</li>
+      <li id = "load_example" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_example' == navitem }"><div class = "icon-box">/</div>Examples</li>
+      <li id = "load_demo" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_demo' == navitem }"><div class = "icon-box">/</div>Demos</li>
     </ul>
 
     <!-- this group changes the view in the router -->
@@ -20,7 +20,7 @@
       <li id = "about" v-link="{ name: 'about', activeClass: 'selected' }"><div class = "icon-box">?</div>About</li>
     </ul>
 
-  </div>
+  </nav>
 
 </template>
 
@@ -29,14 +29,23 @@ import Store from '../Store'
 
 export default {
   name: 'Sidebar',
+  data () {
+    return {
+      navitem: 'load_project',
+      qq: true
+    }
+  },
   methods: {
-    toggle: function (what) {
+    toggle: function (event) {
+      var id = event.currentTarget.id
+
+      this.navitem = id
       // api.project_list_all("", function() {
       //
       // })
       // Store.project_list_all()
       // Store.project_action('run', 'Examples/Media', 'Camera')
-      Store.emit('toggle', what)
+      Store.emit('toggle', id)
     }
 
   }
@@ -60,7 +69,7 @@ export default {
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       position: relative;
     }
-    
+
     .editor_options {
       padding-left: 12px;
     }
@@ -74,12 +83,15 @@ export default {
        font-family: 'Open Sans';
        font-weight: 100;
        color: #FFFFFF;
+       background: transparent linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0)) repeat scroll 0% 0%;
        border-left: 2px solid transparent;
 
        &:hover, &.selected {
          background-color: rgba(255, 255, 255, 1);
          color: black;
          border-radius: 2px;
+         background: transparent linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0)) repeat scroll 0% 0%;
+         color: white;
 
          .icon_box {
            color: pink;

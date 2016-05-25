@@ -43,7 +43,7 @@ export default {
   position: absolute;
   width: 300px;
   border-radius: 3px;
-  z-index: 2;
+  z-index: 3;
   border: 0px solid black;
   padding: 20px;
   opacity: 1;

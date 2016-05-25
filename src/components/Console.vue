@@ -23,9 +23,7 @@ export default {
   data () {
     return {
       msg: 'Hello World!',
-      files: [
-        { type: 'log', text: 'qq.png' }
-      ]
+      files: []
     }
   },
   methods: {
@@ -57,8 +55,10 @@ export default {
 
   .content ul {
     li {
-      padding: 8px 10px;
+      padding: 5px 10px;
       border-bottom: 1px dashed #333;
+      font-family: Source Code Pro;
+      line-height: 1.8em;
       .anim-fast;
 
       &:hover {

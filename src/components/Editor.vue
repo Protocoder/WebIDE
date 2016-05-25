@@ -1,7 +1,7 @@
 <template>
   <div id = "myeditor">
-  <project-load v-show = "show_load_project" transition="banner-anim"></project-load>
-  <project-new v-show = "show_new_project" transition="banner-anim"></project-new>
+  <project-new v-show = "panel_visibility.new_project" transition="banner-anim"></project-new>
+  <project-load v-show = "panel_visibility.load_project" transition="banner-anim"></project-load>
 
   <div id = "project-options">
     <div id = "project-actions" class ="">
@@ -38,9 +38,12 @@ export default {
   },
   data () {
     return {
-      show_new_project: false,
-      show_load_example: false,
-      show_load_project: false,
+      panel_visibility: {
+        new_project: false,
+        load_project: false,
+        load_example: false,
+        load_demo: false
+      },
       run_button_state: 'run',
       currentTab: 0,
       tabs: [
@@ -55,14 +58,8 @@ export default {
     }
   },
   ready () {
-    console.log('editor loaded')
-    console.log(ace)
-
     var ace_ = ace
-    console.log(ace_)
-
     this.editor = ace_.edit('editor')
-
     this.Range = ace_.require('ace/range').Range
     ace_.require('ace/lib/event')
     ace_.require('ace/config')
@@ -70,6 +67,7 @@ export default {
     ace_.require('ace/undomanager')
     ace_.require('ace/marker')
     ace_.require('ace/range')
+    ace_.require('ace/ext/language_tools')
 
     var renderer = this.editor.renderer
     this.session = this.editor.getSession()
@@ -77,11 +75,10 @@ export default {
     this.editor.setTheme('ace/theme/monokai')
     this.editor.setOptions({
       fontSize: '12pt',
-      enableBasicAutocompletion: true
+      enableBasicAutocompletion: true,
+      enableLiveAutocompletion: false
     })
-    // this.session.setWrapLimitRange(null, null)
-    // this.editor.setPrintMarginColumn(false)
-    // renderer.setShowPrintMargin = null
+    // this.editor.setPrintMarginColumn(true)
     renderer.setPadding(8)
 
     this.session.setMode('ace/mode/javascript')
@@ -92,38 +89,80 @@ export default {
     this.session.on('change', function (e) {
       // update code
       that.tabs[that.currentTab].code = that.session.getValue()
-      console.log(that.session.getValue())
-      that.$log()
+      // console.log(that.session.getValue())
+      // that.$log()
     })
 
     /*
-    Vue.transition('banner-anim', {
-      beforeEnter: function (el) {
-        console.log('beforeEnter')
+     * Commands
+     */
+
+    // run
+    this.editor.commands.addCommand({
+      name: 'run_command',
+      bindKey: {
+        win: 'Ctrl-R',
+        mac: 'Command-R',
+        sender: 'editor|cli'
       },
-      enter: function (el) {
-        console.log('enter')
-      },
-      afterEnter: function (el) {
-        console.log('afterEnter')
-      },
-      enterCancelled: function (el) {
-        // handle cancellation
-      },
-      beforeLeave: function (el) {
-        console.log('beforeLeave')
-      },
-      leave: function (el) {
-        console.log('leave')
-      },
-      afterLeave: function (el) {
-        console.log('afterLeave')
-      },
-      leaveCancelled: function (el) {
-        // handle cancellation
+      exec: function (env, args, request) {
+        that.run()
       }
     })
-    */
+
+    // save
+    this.editor.commands.addCommand({
+      name: 'save_command',
+      bindKey: {
+        win: 'Ctrl-S',
+        mac: 'Command-S',
+        sender: 'editor|cli'
+      },
+      exec: function (env, args, request) {
+        console.log('shortcut save')
+        that.save()
+      }
+    })
+
+    // save
+    this.editor.commands.addCommand({
+      name: 'liveExecution',
+      bindKey: {
+        win: 'Ctrl-Shift-X',
+        mac: 'Command-Shift-X',
+        sender: 'editor'
+      },
+      exec: function (env, args, request) {
+        var range = that.editor.getSelection().getRange()
+        var selectedText = that.session.getTextRange(range)
+
+        var liveExec = {}
+
+        // get the code selected or the whole row
+        if (selectedText.length > 0) {
+          liveExec.text = selectedText
+          liveExec.range = range
+          console.log('tiny select')
+        } else {
+          console.log('line select')
+          var cursorPosition = that.editor.getCursorPosition()
+          var numLine = cursorPosition['row']
+          liveExec.numLine = numLine
+          liveExec.text = that.session.getDocument().$lines[liveExec.numLine]
+          liveExec.range = new that.Range(liveExec.numLine, 0, liveExec.numLine, liveExec.text.length)
+        }
+
+        // highlight text
+        var marker = that.session.addMarker(liveExec.range, 'execute_code_highlight', 'line', true)
+        setTimeout(function () {
+          that.session.removeMarker(marker)
+        }, 500)
+
+        console.log(liveExec)
+
+        Store.execute_code(liveExec.text)
+      }
+    })
   },
   created () {
     Store.on('project_loaded', this.load_project)
@@ -176,21 +215,11 @@ export default {
       }
     },
     toggle_section: function (what) {
-      switch (what) {
-        case 'load_project':
-          this.show_load_project = !this.show_load_project
-          break
-        case 'load_example':
-          this.show_load_example = !this.show_load_example
-          break
-        case 'new_project':
-          this.show_new_project = !this.show_new_project
-          break
-
-        default:
-
+      // if toggle the given panel, the rest off
+      for (var k in this.panel_visibility) {
+        if (k === what) this.panel_visibility[k] = !this.panel_visibility[k]
+        else this.panel_visibility[k] = false
       }
-      return true
     }
 
     /*
@@ -205,7 +234,7 @@ export default {
 @import "../assets/css/variables.less";
 
 #myeditor {
-  height: 100%;
+  height: 100vh;
 }
 
 #editor_container {
@@ -299,6 +328,30 @@ export default {
     background-image: none;
 }
 
+.ace-tm .ace_marker-layer .run_code{
+  background-color: rgba(0, 255, 0, 0.38);
+  position: absolute;
+  width: 100% !important;
+  left: 0 !important;
+  z-index: 25 !important;
+}
+
+.ace_editor.ace_autocomplete {
+  border: 0px !important;
+  border-radius: 2px 0px 0px 2px;
+}
+
+.ace_editor.ace_autocomplete .ace_marker-layer .ace_active-line {
+  background-color: @primaryAccent;
+}
+
+.execute_code_highlight {
+    background: fade(@primaryAccent, 50%);
+    position: absolute;
+    width: calc(~"100% - 5px") !important;
+    border: 1px solid @primaryAccent;
+    left: 0 !important;
+}
 
 /* adjust to different sizes */
 @media screen and (max-width: 600px) {
@@ -306,6 +359,5 @@ export default {
     padding: 0px;
   }
 }
-
 
 </style>

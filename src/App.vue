@@ -16,6 +16,9 @@
     </div>
 
     <div id = "right_container" class = "container">
+      <div id = "handle"></div>
+
+
       <div id = "panels">
         <router-view
           class="view proto_panel"
@@ -28,6 +31,7 @@
         <div id ="editor_panels">
           <file-manager></file-manager>
           <console></console>
+          <dashboard></dashboard>
         </div>
       </div>
     </div>
@@ -48,8 +52,11 @@ import Banner from './components/Banner'
 
 import FileManager from './components/FileManager'
 import Console from './components/Console'
+import Dashboard from './components/Dashboard'
 
 import TutorialLoader from './components/TutorialLoader'
+
+// import ResizeHandle from 'resize-handle'
 
 export default {
   components: {
@@ -62,6 +69,7 @@ export default {
 
     FileManager,
     Console,
+    Dashboard,
 
     TutorialLoader
   },
@@ -78,6 +86,37 @@ export default {
   },
   created () {
     Store.emit('project_list_all')
+  },
+  ready () {
+    var handle = document.querySelector('#handle')
+    var container = document.querySelector('#right_container')
+
+    handle.onmousedown = function (e) {
+      var handleX = handle.getBoundingClientRect().left
+      var containerW = container.getBoundingClientRect().width
+
+      document.onmousemove = function (e) {
+        e.preventDefault()
+
+        // move handle
+        var barW = handle.getBoundingClientRect().width
+        var position = e.pageX - handleX - barW / 2
+
+        console.log(handleX + ' ' + ' ' + ' ' + e.pageX + ' ' + position)
+
+        // adjust container size
+        container.style.width = containerW - position + 'px'
+      }
+
+      document.onmouseup = function (e) {
+        document.onmousemove = null
+      }
+    }
+
+    handle.onmouseup = function () {
+      console.log('handle mouse up')
+      document.onmousemove = null
+    }
   },
   destroyed () {
     Store.remove_listener('toggle', this.toggle_section)
@@ -130,10 +169,35 @@ body {
 }
 
 #right_container {
+  position: relative;
   order: 3;
+  width: 300px;
+  min-width: 200px;
+  max-width: 500px;
+
+  /*
   flex: 1;
   min-width: 250px;
   max-width: 550px;
+  */
+}
+
+#handle {
+  position: absolute;
+  width: 5px;
+  height: 100%;
+  left: -3px;
+  top: 82px;
+  z-index: 2;
+}
+
+#handle:hover {
+  cursor: col-resize;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+#handle:active {
+  background: rgba(255, 255, 255, 0.5);
 }
 
 /********* global thingies **/
@@ -230,7 +294,7 @@ button {
 
 	  h1 {
 	    text-align: left;
-	    color: #ccc;
+	    color: rgba(255, 255, 255, 0.3);
 	    text-transform: lowercase;
 	    font-weight: 600;
       flex: 1;
