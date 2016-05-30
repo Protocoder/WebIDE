@@ -23,7 +23,9 @@ export default {
   data () {
     return {
       msg: 'Hello World!',
-      logs: [{action: 'error', text: 'potato'}]
+      logs: [
+      /* {action: 'error', text: 'potato'}
+      */]
     }
   },
   methods: {

@@ -49,7 +49,8 @@ export default {
       tabs: [
         { name: 'main.js', text: '' },
         { name: 'main2.js', text: '' }
-      ]
+      ],
+      store: ''
     }
   },
   route: {
@@ -168,6 +169,7 @@ export default {
     Store.on('project_loaded', this.load_project)
     Store.on('toggle', this.toggle_section)
     Store.emit('project_list_all')
+    this.store = Store
   },
   destroyed () {
     console.log('editor destroyed')
@@ -192,13 +194,13 @@ export default {
       // stop the project
       } else {
         this.run_button_state = 'run'
-        Store.emit('project_action', '/stop/all')
+        Store.emit('project_action', '/stop')
       }
     },
     save: function () {
       console.log('save project')
       // this.$log()
-      Store.emit('project_save')
+      Store.emit('project_save', this.tabs)
     },
     saveas: function () {
       console.log('saveas project')
@@ -237,7 +239,7 @@ export default {
 #myeditor {
   height: 100vh;
 
-  button {
+  #project-actions button{
     width: 85px;
   }
 }

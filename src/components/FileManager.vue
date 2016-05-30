@@ -1,7 +1,8 @@
 <template>
   <div id = "file_manager" class = "proto_panel">
     <div class = "actionbar">
-      <h1><span class = "filename">Hello World</span> Files</h1>
+      <h1><span class = "name">Hello World</span> Files</h1>
+      <p>{{current_folder}}</p>
       <ul>
         <li class="fa fa-folder"></li>
       </ul>
@@ -33,7 +34,7 @@
         <thead>
           <tr>
             <th> type </type>
-            <th> filename </th>
+            <th> name </th>
             <th> size </th>
             <th> action </th>
           </tr>
@@ -41,7 +42,7 @@
         <tbody>
           <tr id = "files" v-bind:class="{ 'selected': selected == $index }" v-for = "file in files" v-on:click = "showcontent($index, $event)">
             <td> {{{file.type | fa_icon}}} </td>
-            <td> {{file.filename}} </td>
+            <td> {{file.name}} </td>
             <td> {{file.size}} </td>
             <td> Q </td>
           </tr>
@@ -72,18 +73,19 @@ export default {
       showpopover: false,
       qq: true,
       selected: -1,
+      current_folder: '/potato',
       files: [
-        { type: 'folder-o', filename: 'qq1.png', size: '25kb' },
-        { type: 'folder-o', filename: 'qq2.png', size: '25kb' },
-        { type: 'folder-o', filename: 'qq3.png', size: '25kb' },
-        { type: 'folder-o', filename: 'qq4.png', size: '25kb' },
-        { type: 'folder-o', filename: 'qq5.png', size: '25kb' },
-        { type: 'file-o', filename: 'qq.png', size: '25kb' },
-        { type: 'file-o', filename: 'qq.png', size: '25kb' },
-        { type: 'file-o', filename: 'qq.png', size: '25kb' },
-        { type: 'file-o', filename: 'qq.png', size: '25kb' },
-        { type: 'file-o', filename: 'qqm.png', size: '25kb' },
-        { type: 'file-o', filename: 'qqmm.png', size: '25kb' }
+        { type: 'folder-o', name: 'qq1.png', size: '25kb' },
+        { type: 'folder-o', name: 'qq2.png', size: '25kb' },
+        { type: 'folder-o', name: 'qq3.png', size: '25kb' },
+        { type: 'folder-o', name: 'qq4.png', size: '25kb' },
+        { type: 'folder-o', name: 'qq5.png', size: '25kb' },
+        { type: 'file-o', name: 'qq.png', size: '25kb' },
+        { type: 'file-o', name: 'qq.png', size: '25kb' },
+        { type: 'file-o', name: 'qq.png', size: '25kb' },
+        { type: 'file-o', name: 'qq.png', size: '25kb' },
+        { type: 'file-o', name: 'qqm.png', size: '25kb' },
+        { type: 'file-o', name: 'qqmm.png', size: '25kb' }
       ]
     }
   },
@@ -96,10 +98,22 @@ export default {
     away: function () {
       console.log('you clicked away')
       this.showpopover = false
+    },
+    list_files: function () {
+      // update object
+      this.current_folder = Store.state.current_project.current_folder
+      var files = Store.state.current_project.files
+      Store.clearArray(this.files)
+
+      for (var i in files) {
+        this.files.push(files[i])
+      }
     }
   },
   ready () {
     console.log('ready')
+    Store.on('project_files', this.list_files)
+
     // var fileselect = document.getElementById('fileselect')
     var filedrag = document.getElementById('file_manager')
     // var submitbutton = document.getElementById('submitbutton')
@@ -171,12 +185,12 @@ export default {
   background: rgba(0, 0, 0, 0.2);
 
   .actionbar {
-    
+
   }
 
   table {
     width: 100%;
-    text-align: center;
+    text-align: left;
     cursor: pointer;
 
     thead {

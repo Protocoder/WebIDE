@@ -56,21 +56,41 @@ store.project_list_all = function () {
 store.project_load = function (uri) {
   var query = { }
 
-  Vue.http({ url: get_url_webapp('/api/project/load' + uri), method: 'GET', data: query }).then(function (response) {
+  Vue.http({ url: get_url_webapp('/api/project' + uri + '/load'), method: 'GET', data: query }).then(function (response) {
     // console.log(TAG + ': project_load(status) > ' + response.status)
     store.state.current_project = response.data
     store.emit('project_loaded')
+    store.emit('project_files')
+
+    store.list_files_in_path('/qq')
   }, function (response) {
     // console.log(TAG + ': project_load(status) > ' + response.status)
+  })
+}
+
+store.list_files_in_path = function (p) {
+  var query = {path: p}
+  console.log('listing files in path ' + p)
+  Vue.http({ url: get_url_webapp('/api/project/files/list' + p), method: 'GET', data: query }).then(function (response) {
+    console.log('list_files_in_path(status) > ' + response.status)
+    // store.state.current_project.current_folder = response.data
+    store.emit('project_loaded')
+  }, function (response) {
+    console.log('list_files_in_path(status) > ' + response.status)
   })
 }
 
 /*
  * Save a project
  */
-store.project_save = function () {
+store.project_save = function (files) {
   console.log('project saving')
-  var query = this.state.current_project
+  // var project = this.state
+
+  var query = Object.assign({}, store.state.current_project)
+
+  query.files = files
+  console.log(query)
 
   // vm.$log()
 
@@ -89,7 +109,7 @@ store.project_save = function () {
 store.project_action = function (action) {
   var query = { }
 
-  Vue.http({ url: get_url_webapp('/api/project' + action + this.get_current_project()), method: 'GET', data: query }).then(function (response) {
+  Vue.http({ url: get_url_webapp('/api/project' + this.get_current_project() + action), method: 'GET', data: query }).then(function (response) {
     // console.log(response.status)
   }, function (response) {
     // console.log(response.status)
@@ -103,9 +123,8 @@ store.execute_code = function (code) {
   console.log('execute_code ' + code)
   var query = { code: code }
 
-  Vue.http.post(get_url_webapp('/api/project/execute_code' + this.get_current_project()), query).then(function (response) {
+  Vue.http.post(get_url_webapp('/api/project/execute_code'), query).then(function (response) {
     // console.log(response.status)
-
   }, function (response) {
     // console.log(response.status)
   })

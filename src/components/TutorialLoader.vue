@@ -92,6 +92,10 @@ export default {
   line-height: 1.2em;
   font-size: 1.2em;
 
+  code {
+    font-family: Source Code Pro;
+  }
+  
   h1, h2, h3, h4, h5, h6, p, ul, ol, li, blockquote, table, pre {
     padding: 0em 0em;
     margin-bottom: 0.5em;
