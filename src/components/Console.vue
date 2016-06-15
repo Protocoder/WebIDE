@@ -1,14 +1,14 @@
 <template>
   <div id = "console" class = "proto_panel">
     <div class = "actionbar">
-      <h1> console </h1>
+      <h1>console</h1>
       <ul>
-        <li class="fa fa-lock"></li>
+        <li class="fa fa-lock" v-on:click="toggleLock()" v-bind:class="{'enabled':lock}"></li>
         <li class="fa fa-trash" v-on:click="clear()"></li>
       </ul>
     </div>
-    <div v-el:log class = "content">
-      <ul>
+    <div class = "content">
+      <ul v-el:log>
         <li v-for="log in logs | limitBy 10000000" class={{log.action}}> {{log.text}} </li>
       </ul>
     </div>
@@ -25,25 +25,40 @@ export default {
       msg: 'Hello World!',
       logs: [
       /* {action: 'error', text: 'potato'}
-      */]
+      */],
+      count: 0,
+      lock: false
     }
   },
   methods: {
     console: function (data) {
       this.logs.push({action: data.action, text: data.data})
-      // $('#console #logs').scrollTo(0, 0)
-      var ul = this.$els.log.getElementsByTagName('ul')
 
-      ul.scrollTop = '10000px' // ul.scrollHeight
-      // scrollIntoView()
+      if (this.lock) return
+
+      var ul = this.$els.log
+      // wait until vue rerenders
+      this.$nextTick(function () {
+        ul.scrollTop = ul.scrollHeight
+      })
     },
     clear: function () {
       console.log('clear')
       this.logs = []
+    },
+    toggleLock () {
+      this.lock = !this.lock
     }
   },
   created () {
     Store.on('console', this.console)
+    /*
+    var that = this
+
+    setInterval(function () {
+      that.console({action: 'msg', data: 'log ' + ++that.count})
+    }, 2000)
+    */
   },
   destroyed () {
     Store.remove_listener('console', this.console)
@@ -60,6 +75,9 @@ export default {
   height: 300px;
 
   .content ul {
+    height: calc(~"100%");
+    overflow-y: auto;
+
     li {
       padding: 5px 10px;
       border-bottom: 1px dashed #333;

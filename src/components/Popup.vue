@@ -48,6 +48,10 @@ export default {
   padding: 20px;
   opacity: 1;
 
+  img {
+    width: 100%;
+  }
+
   ul {
     .key {
       font-weight: 800

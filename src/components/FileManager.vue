@@ -1,7 +1,7 @@
 <template>
   <div id = "file_manager" class = "proto_panel">
     <div class = "actionbar">
-      <h1><span class = "name">Hello World</span> Files</h1>
+      <h1><span class = "name">{{project_name}}</span> Files</h1>
       <p>{{current_folder}}</p>
       <ul>
         <li class="fa fa-folder"></li>
@@ -40,6 +40,12 @@
           </tr>
         </thead>
         <tbody>
+          <tr id = "back" v-on:click = "change_dir('..')">
+            <td><i class = "fa fa-folder-o"></i></td>
+            <td> .. </td>
+            <td> </td>
+            <td> </td>
+          </tr>
           <tr id = "files" v-bind:class="{ 'selected': selected == $index }" v-for = "file in files" v-on:click = "showcontent($index, $event)">
             <td> {{{file.type | fa_icon}}} </td>
             <td> {{file.name}} </td>
@@ -52,7 +58,7 @@
   </div>
 
   <popup arrow = "right" :posy = "posyel" v-if = "showpopover" v-on-clickaway = "qaway">
-  {{ selected }}
+  {{{popup_content}}}
   </popup>
 </template>
 
@@ -73,8 +79,11 @@ export default {
       showpopover: false,
       qq: true,
       selected: -1,
-      current_folder: '/potato',
+      popup_content: '',
+      current_folder: '',
+      project_name: '',
       files: [
+        /*
         { type: 'folder-o', name: 'qq1.png', size: '25kb' },
         { type: 'folder-o', name: 'qq2.png', size: '25kb' },
         { type: 'folder-o', name: 'qq3.png', size: '25kb' },
@@ -86,14 +95,34 @@ export default {
         { type: 'file-o', name: 'qq.png', size: '25kb' },
         { type: 'file-o', name: 'qqm.png', size: '25kb' },
         { type: 'file-o', name: 'qqmm.png', size: '25kb' }
+        */
       ]
     }
   },
   methods: {
     showcontent: function (i, e) {
-      this.posyel = e.clientY
-      this.selected = i
-      this.showpopover = !this.showpopover
+      var selected_file = this.files[i]
+
+      if (selected_file.isDir) {
+        // we can change dir
+        this.change_dir(selected_file.path)
+      } else {
+        console.log('qq')
+        if (selected_file.name.endsWith('.png') ||
+            selected_file.name.endsWith('.jpg') ||
+            selected_file.name.endsWith('.jpeg')) {
+          // we check if we preview or open in editor
+          this.posyel = e.clientY
+          this.selected = i
+          var url = Store.get_url_for_current_project() + 'files/load/' + selected_file.name
+          this.popup_content = '<img src=' + url + '/>'
+          // console.log(url)
+          this.showpopover = !this.showpopover
+        } else if (selected_file.name.endsWith('.js')) {
+          console.log('selected js ' + selected_file.name)
+          Store.load_file(selected_file)
+        }
+      }
     },
     away: function () {
       console.log('you clicked away')
@@ -103,11 +132,20 @@ export default {
       // update object
       this.current_folder = Store.state.current_project.current_folder
       var files = Store.state.current_project.files
+      this.project_name = Store.state.current_project.project.name
       Store.clearArray(this.files)
+
+      files.sort(function (a, b) {
+        return (b.isDir - a.isDir) || (a.name.toString().localeCompare(b.name))
+      })
 
       for (var i in files) {
         this.files.push(files[i])
       }
+    },
+    change_dir: function (path) {
+      console.log('changing dir ' + path)
+      Store.list_files_in_path(path)
     }
   },
   ready () {
@@ -118,12 +156,9 @@ export default {
     var filedrag = document.getElementById('file_manager')
     // var submitbutton = document.getElementById('submitbutton')
 
-    console.log(filedrag)
-
     // check if file d&d is supported
     if (window.File && window.FileList && window.FileReader && window.Blob) {
       // filedrag.style.display = 'block'
-      console.log('qq')
       filedrag.addEventListener('dragover', function (e) {
         console.log('dragover')
         e.stopPropagation()

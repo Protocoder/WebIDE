@@ -4,7 +4,7 @@ const store = new EventEmitter()
 export default store
 
 // var TAG = 'store'
-var DEBUG = true
+var DEBUG = false
 
 // constants
 var WEBAPP_PORT = 8585
@@ -62,21 +62,42 @@ store.project_load = function (uri) {
     store.emit('project_loaded')
     store.emit('project_files')
 
-    store.list_files_in_path('/qq')
+    // store.list_files_in_path('')
   }, function (response) {
     // console.log(TAG + ': project_load(status) > ' + response.status)
   })
 }
 
 store.list_files_in_path = function (p) {
-  var query = {path: p}
-  console.log('listing files in path ' + p)
-  Vue.http({ url: get_url_webapp('/api/project/files/list' + p), method: 'GET', data: query }).then(function (response) {
+  var query = {} // path: p}
+  var splitted = p.split('/')
+  var to_path = splitted.slice(3, splitted.lenth).join('/')
+
+  console.log('listing files in path ' + to_path)
+  Vue.http({ url: get_url_webapp('/api/project' + this.get_current_project() + '/files/list/' + to_path), method: 'GET', data: query }).then(function (response) {
     console.log('list_files_in_path(status) > ' + response.status)
-    // store.state.current_project.current_folder = response.data
-    store.emit('project_loaded')
+
+    store.state.current_project.current_folder = '/' + to_path
+    store.state.current_project.files = response.data
+
+    store.emit('project_files')
   }, function (response) {
     console.log('list_files_in_path(status) > ' + response.status)
+  })
+}
+
+/*
+ * Load file
+ */
+store.load_file = function (file) {
+  var query = {}
+  Vue.http({ url: this.get_url_for_current_project() + 'files/load/' + file.name, method: 'GET', query }).then(
+  function (response) {
+    file.code = response.data
+    // console.log(TAG + ': project_save(status) > ' + response.status)
+    store.emit('file_loaded', file)
+  }, function (response) {
+    // console.log(TAG + ': project_save(status) > ' + response.status)
   })
 }
 
@@ -160,7 +181,6 @@ store.copyArray = function (or, dst) {
  * Method that returns the ProtocoderURL Server, useful when debugging
  */
 var get_url = function (route) {
-  // var url = 'http://192.168.100.13:8585'
   if (DEBUG) {
     // return '192.168.1.57'
     return '127.0.0.1'
@@ -175,6 +195,11 @@ var get_url_webapp = function (route) {
 
 var get_url_ws = function () {
   return 'ws://' + get_url() + ':' + WS_PORT
+}
+
+store.get_url_for_current_project = function () {
+  var p = store.state.current_project.project
+  return get_url_webapp('/api/project/' + encodeURIComponent(p.folder + '/' + p.name + '/'))
 }
 
 /*

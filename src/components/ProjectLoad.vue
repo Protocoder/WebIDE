@@ -78,13 +78,17 @@ export default {
 .editor_panel {
   .project_list {
     margin-bottom: 12px;
+    font-family: 'Open Sans';
 
     h1 {
       color: @primaryAccent;
       font-weight: 600;
       padding: 5px 0px;;
+      border-bottom: 0px solid @primaryAccent;
+      margin-bottom: 5px;
+      text-transform: uppercase;
     }
-    
+
   }
 
   ul {
@@ -97,7 +101,6 @@ export default {
     li {
       padding: 5px;
       font-size: 1.5em;
-      font-family: Roboto;
       font-weight: 300;
 
       &:hover, &.selected {

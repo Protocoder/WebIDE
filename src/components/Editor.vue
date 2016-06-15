@@ -15,11 +15,11 @@
 
       <div id = "nav_tabs">
         <ul id = "tabs">
-          <li v-bind:class="{'active': currenttab == $index }" v-for="t in tabs">{{t.name}}</li>
+          <li v-bind:class="{'active': currentTab == $index }" v-on:click="select_tab($index)" v-for="t in tabs">{{t.name}}</li>
         </ul>
         <div id = "add_tab" class = "fa fa-plus"></div>
       </div>
-			<div id = "editor">{{tabs[currentTab].text}}</div>
+			<div id = "editor"></div>
 		</div>
   </div>
 </template>
@@ -47,8 +47,7 @@ export default {
       run_button_state: 'run',
       currentTab: 0,
       tabs: [
-        { name: 'main.js', text: '' },
-        { name: 'main2.js', text: '' }
+        { name: 'main.js', text: '' }
       ],
       store: ''
     }
@@ -167,6 +166,7 @@ export default {
   },
   created () {
     Store.on('project_loaded', this.load_project)
+    Store.on('file_loaded', this.load_file)
     Store.on('toggle', this.toggle_section)
     Store.emit('project_list_all')
     this.store = Store
@@ -174,6 +174,7 @@ export default {
   destroyed () {
     console.log('editor destroyed')
     Store.remove_listener('project_loaded', this.load_project)
+    Store.remove_listener('file_loaded', this.load_file)
     Store.remove_listener('toggle', this.toggle_section)
 
     this.editor.remove()
@@ -211,10 +212,19 @@ export default {
       for (var i in files) {
         if (files[i].name === 'main.js') {
           Store.clearArray(this.tabs)
-          this.tabs.push(files[i])
+          var f = files[i]
+          f.session = ace.createEditSession(f.code, 'ace/mode/javascript')
+          this.tabs.push(f)
           this.editor.session.setValue(files[i].code)
         }
       }
+    },
+    load_file: function (f) {
+      // check if opened
+      f.session = ace.createEditSession(f.code, 'ace/mode/javascript')
+      this.tabs.push(f)
+
+      // console.log('load file ' + f.name + ' ' + f.code)
     },
     toggle_section: function (what) {
       // if toggle the given panel, the rest off
@@ -222,6 +232,11 @@ export default {
         if (k === what) this.panel_visibility[k] = !this.panel_visibility[k]
         else this.panel_visibility[k] = false
       }
+    },
+    select_tab: function (index) {
+      this.currentTab = index
+      // this.editor.session.setValue(this.tabs[index].code)
+      this.editor.setSession(this.tabs[index].session)
     }
 
     /*
@@ -278,6 +293,7 @@ export default {
         padding: 15px 20px;
         cursor: pointer;
         .anim-fast;
+        border-bottom: 4px solid @transparent;
 
         &.active {
            border-bottom: 4px solid @primaryAccent;

@@ -8,12 +8,14 @@ import Login from './components/Login.vue'
 import TutorialLoader from './components/TutorialLoader'
 import About from './components/About'
 import Preferences from './components/Preferences'
-import $ from 'jquery'
+// import $ from 'jquery'
 // import Store from './Store'
 
+/*
 $(document).ready(function () {
   console.log('jquery ready!')
 })
+*/
 
 // register filters globally
 Vue.filter('domain', domain)

@@ -317,9 +317,10 @@ button {
 				cursor: pointer;
         color: rgba(255, 255, 255, 0.5);
 
-				&:hover {
+				&:hover, &.enabled {
           color: white;
 				}
+
 			}
 
 		}
@@ -327,7 +328,6 @@ button {
 
   .content {
     height: calc(~"100% - 1em");
-    overflow-y: auto;
   }
 }
 

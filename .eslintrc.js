@@ -12,6 +12,7 @@ module.exports = {
   },
   // add your custom rules here
   'rules': {
+    "camelcase": 0,
     // allow paren-less arrow functions
     'arrow-parens': 0,
     // allow debugger during development
