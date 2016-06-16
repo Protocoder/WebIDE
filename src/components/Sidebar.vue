@@ -9,15 +9,15 @@
 
     <ul class = "menu_separation">
       <li id = "load_project" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_project' == navitem }"><div class = "icon-box">/</div>Projects</li>
-      <li id = "load_example" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_example' == navitem }"><div class = "icon-box">/</div>Examples</li>
-      <li id = "load_demo" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_demo' == navitem }"><div class = "icon-box">/</div>Demos</li>
+      <!-- <li id = "load_example" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_example' == navitem }"><div class = "icon-box">/</div>Examples</li> -->
+      <li id = "load_demo" class = "disabled" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_demo' == navitem }"><div class = "icon-box">/</div>Demos</li>
     </ul>
 
     <!-- this group changes the view in the router -->
     <ul class = "">
-      <li id = "tutorials" v-link="{ name: 'tutorial', params: { id: 1 }, activeClass: 'selected' }"><div class = "icon-box">*</div>Tutorials</li>
-      <li id = "preferences" v-link="{ name: 'preferences', activeClass: 'selected' }"><div class = "icon-box">"</div>Preferences</li>
-      <li id = "about" v-link="{ name: 'about', activeClass: 'selected' }"><div class = "icon-box">?</div>About</li>
+      <li id = "tutorials" class = "disabled" v-link="{ name: 'tutorial', params: { id: 1 }, activeClass: 'selected' }"><div class = "icon-box">*</div>Tutorials</li>
+      <li id = "preferences" class = "disabled" v-link="{ name: 'preferences', activeClass: 'selected' }"><div class = "icon-box">"</div>Preferences</li>
+      <li id = "about" class = "disabled" v-link="{ name: 'about', activeClass: 'selected' }"><div class = "icon-box">?</div>About</li>
     </ul>
 
   </nav>

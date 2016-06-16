@@ -48,10 +48,15 @@ export default {
     },
     toggleLock () {
       this.lock = !this.lock
+    },
+    project_action (action) {
+      if (action === '/run') this.clear()
     }
   },
   created () {
     Store.on('console', this.console)
+    Store.on('project_action', this.project_action)
+
     /*
     var that = this
 

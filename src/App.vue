@@ -102,7 +102,7 @@ export default {
         var barW = handle.getBoundingClientRect().width
         var position = e.pageX - handleX - barW / 2
 
-        console.log(handleX + ' ' + ' ' + ' ' + e.pageX + ' ' + position)
+        // console.log(handleX + ' ' + ' ' + ' ' + e.pageX + ' ' + position)
 
         // adjust container size
         container.style.width = containerW - position + 'px'
@@ -372,6 +372,11 @@ button {
   #myeditor {
     padding: 0px;
   }
+}
+
+.disabled {
+  opacity: 0.2;
+  pointer-events: none;
 }
 
 </style>

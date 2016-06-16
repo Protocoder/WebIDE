@@ -5,7 +5,7 @@
       <div class = "project_list" v-for="p in state.projects">
         <h1> {{p.name}} </h1>
         <ul>
-          <li v-for = "f in p.files" v-bind:class="{'selected':selected == $index}" v-on:click = "choose_folder($parent.$index, $index, $event)" id = "{{f.name}}"> {{f.name}} </li>
+          <li v-for = "f in p.files" v-bind:class="{'selected':selected == $index && pselected == $parent.$index}" v-on:click = "choose_folder($parent.$index, $index, $event)" id = "{{f.name}}"> {{f.name}} </li>
         </ul>
       </div>
 
@@ -36,6 +36,7 @@ export default {
     return {
       state: Store.state,
       id: Store.state.id,
+      pselected: -1,
       selected: -1,
       folder_chosen: [],
       uri: {
@@ -46,12 +47,11 @@ export default {
   },
   methods: {
     new_project: function () {
-      console.log('new 1')
-
       return true
     },
     choose_folder: function (pindex, index, event) {
       // console.log(pindex, index, this.projects[pindex].files[index].name)
+      this.pselected = pindex
       this.selected = index
       this.uri.folder = '/' + this.state.projects[pindex].name + '/' + this.state.projects[pindex].files[index].name
       this.folder_chosen = this.state.projects[pindex].files[index].files
@@ -100,7 +100,7 @@ export default {
 
     li {
       padding: 5px;
-      font-size: 1.5em;
+      font-size: 1.3em;
       font-weight: 300;
 
       &:hover, &.selected {

@@ -4,7 +4,7 @@ const store = new EventEmitter()
 export default store
 
 // var TAG = 'store'
-var DEBUG = false
+var DEBUG = true
 
 // constants
 var WEBAPP_PORT = 8585
@@ -42,9 +42,22 @@ store.project_list_all = function () {
   Vue.http({ url: get_url_webapp('/api/project/list/' + folder), method: 'GET', data: query }).then(function (response) {
     // console.log(TAG + ': project_list_all(status) > ' + response.status)
     // copyArray(response.data, store.examples)
-
+    // console.log(response.data)
     store.state.projects = response.data
-    vm.$log()
+
+    // order folder
+    for (var i in store.state.projects) {
+      store.state.projects[i].files.sort(function (a, b) {
+        return (a.name.toString().localeCompare(b.name))
+      })
+
+      // order projects
+      for (var j in store.state.projects[i].files) {
+        store.state.projects[i].files[j].files.sort(function (a, b) {
+          return (a.name.toString().localeCompare(b.name))
+        })
+      }
+    }
   }, function (response) {
     // console.log(TAG + ': project_list_all(status) > ' + response.status)
   })
