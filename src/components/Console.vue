@@ -53,6 +53,12 @@ export default {
       if (action === '/run') this.clear()
     }
   },
+  route: {
+    data () {
+      console.log('llllll')
+      console.log(this.$route.params)
+    }
+  },
   created () {
     Store.on('console', this.console)
     Store.on('project_action', this.project_action)
@@ -75,7 +81,7 @@ export default {
 @import "../assets/css/variables.less";
 
 #console {
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.68);
   color: white;
   height: 300px;
 

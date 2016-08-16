@@ -1,14 +1,44 @@
 <template>
-  <div id="main_container">
+  <div id="main_container"  @dragenter.prevent.stop = "handleDragEnter" @dragend = "handleDragLeave">
     <div id = "left_container" class = "container">
       <logo></logo>
+      {{dndState}}
       <sidebar></sidebar>
       <device></device>
     </div>
 
     <div id = "central_container" class = "container">
-      <editor></editor>
+      <documentation-browser></documentation-browser>
+      <!--
+      <dashboard></dashboard>
+    -->
+    <!--  <calender></calender> -->
 
+      <!--
+      <audio-player src = "/static/meow.ogg"></audio-player>
+      <video-player src = "/static/cityfireflies.m4v"></video-player>
+      <video-player src = "https://www.youtube.com/embed/BC2dRkm8ATU"></video-player>
+      <video-player src = "http://player.vimeo.com/video/25071870"></video-player>
+
+      <webview url = "http://127.0.0.1" :showcontrols = "true"></webview>
+      <webview url = "http://www.slashdot.com" :showcontrols = "false"></webview>
+      -->
+
+      <!-- <p5></p5> -->
+
+      <!--
+      <gcanvas></gcanvas>
+    -->
+
+      <router-view
+        class=""
+        @route-data-loaded = "changeTitle"
+        keep-alive
+        transition="banner-anim"
+        transition-mode="out-in">
+      </router-view>
+
+      <!-- <editor></editor> -->
 
       <!--
       <banner v-if="$route.name === 'editor' " transition="banner-anim">qq<a href="https://www.google.es"> google.es </a></banner>
@@ -16,27 +46,21 @@
     </div>
 
     <div id = "right_container" class = "container">
-      <div id = "handle"></div>
-
+      <handle orientation = "vertical" container = "right_container"></handle>
 
       <div id = "panels">
-        <router-view
-          class="view proto_panel"
-          @route-data-loaded = "changeTitle"
-          keep-alive
-          transition="banner-anim"
-          transition-mode="out-in">
-        </router-view>
 
         <div id ="editor_panels">
           <file-manager></file-manager>
+          <handle orientation = "horizontal" container = "file_manager"></handle>
+
           <console></console>
+          <handle orientation = "horizontal" container = "console"></handle>
+
           <!-- <dashboard></dashboard> -->
         </div>
       </div>
     </div>
-
-
   </div>
 </template>
 
@@ -46,15 +70,25 @@ import Store from './Store'
 import Logo from './components/Logo'
 import Sidebar from './components/Sidebar'
 import Device from './components/Device'
+import Handle from './components/Handle'
 
 import Editor from './components/Editor'
-import Banner from './components/Banner'
+import Banner from './components/views/Banner'
 
 import FileManager from './components/FileManager'
 import Console from './components/Console'
 import Dashboard from './components/Dashboard'
 
 import TutorialLoader from './components/TutorialLoader'
+
+import Gcanvas from './components/visual/Gcanvas'
+import Webview from './components/views/Webview'
+import P5 from './components/views/P5js'
+import VideoPlayer from './components/views/VideoPlayer'
+import AudioPlayer from './components/views/AudioPlayer'
+import Calender from './components/views/Calender'
+
+import DocumentationBrowser from './components/views/DocumentationBrowser'
 
 // import ResizeHandle from 'resize-handle'
 
@@ -63,6 +97,7 @@ export default {
     Logo,
     Sidebar,
     Device,
+    Handle,
 
     Editor,
     Banner,
@@ -71,10 +106,19 @@ export default {
     Console,
     Dashboard,
 
-    TutorialLoader
+    TutorialLoader,
+
+    Gcanvas,
+    Webview,
+    P5,
+    VideoPlayer,
+    AudioPlayer,
+    Calender,
+    DocumentationBrowser
   },
   data () {
     return {
+      dndState: ''
       // sharedState: Store.state
     }
   },
@@ -82,44 +126,29 @@ export default {
     changeTitle (vm) {
       console.log(vm)
       document.title = 'Protocoder // ' + vm.title
+    },
+    handleDragEnter: function () {
+      this.dndState = 'enter'
+    },
+    handleDragLeave: function () {
+      this.dndState = 'leave'
     }
   },
   created () {
     Store.emit('project_list_all')
+
+    // show popup when trying to exit app
+    window.onbeforeunload = function (e) {
+      e = e || window.event
+      var msg = 'Are you sure you want to exit? Remember to save your project before :)'
+      if (e) e.returnValue = msg // For IE and Firefox prior to version 4
+      return msg // For Safari
+    }
   },
   ready () {
-    var handle = document.querySelector('#handle')
-    var container = document.querySelector('#right_container')
 
-    handle.onmousedown = function (e) {
-      var handleX = handle.getBoundingClientRect().left
-      var containerW = container.getBoundingClientRect().width
-
-      document.onmousemove = function (e) {
-        e.preventDefault()
-
-        // move handle
-        var barW = handle.getBoundingClientRect().width
-        var position = e.pageX - handleX - barW / 2
-
-        // console.log(handleX + ' ' + ' ' + ' ' + e.pageX + ' ' + position)
-
-        // adjust container size
-        container.style.width = containerW - position + 'px'
-      }
-
-      document.onmouseup = function (e) {
-        document.onmousemove = null
-      }
-    }
-
-    handle.onmouseup = function () {
-      console.log('handle mouse up')
-      document.onmousemove = null
-    }
   },
   destroyed () {
-    Store.remove_listener('toggle', this.toggle_section)
   },
   events: {
     'run': function (msg) {
@@ -146,6 +175,17 @@ body {
   background: linear-gradient(0deg, #716938, #415A71)
 }
 
+@keyframes initAnim {
+    0% {
+        transform: translateY(-40px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
 #main_container {
   display: flex;
   height: 100vh;
@@ -153,7 +193,6 @@ body {
   flex-flow: row nowrap;
 
   .container {
-    padding: 0px 10px;
   }
 }
 
@@ -161,19 +200,27 @@ body {
   display: flex;
   flex-flow: column;
   order: 1;
+  animation: 0.3s ease-out 0s 1 normal initAnim;
+  animation-fill-mode: backwards;
+  padding: 0px 8px;
 }
 
 #central_container {
   order: 2;
   flex: 2;
+  animation: 0.3s ease-out 0.2s 1 normal initAnim;
+  animation-fill-mode: backwards;
+
 }
 
 #right_container {
   position: relative;
   order: 3;
   width: 300px;
-  min-width: 200px;
-  max-width: 500px;
+  min-width: 100px;
+  animation: 0.3s ease-out 0.4s 1 normal initAnim;
+  animation-fill-mode: backwards;
+  padding: 0px 8px;
 
   /*
   flex: 1;
@@ -182,39 +229,32 @@ body {
   */
 }
 
-#handle {
-  position: absolute;
-  width: 5px;
-  height: 100%;
-  left: -3px;
-  top: 82px;
-  z-index: 2;
-}
-
-#handle:hover {
-  cursor: col-resize;
-  background: rgba(255, 255, 255, 0.2);
-}
-
-#handle:active {
-  background: rgba(255, 255, 255, 0.5);
-}
-
 /********* global thingies **/
 button {
+  position: relative;
 	border-radius: 0px;
 	cursor: pointer;
   padding: 6px 20px;
   border-radius: 1px;
   border: 0px solid @transparentWhite;
-  font-size: 12px;
   font-family: 'Open Sans';
-  color: white;
-  font-weight: 100;
-  text-transform: lowercase;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.8em;
   background-color: transparent;
-  background: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+  background: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.15));
   box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.11);
+
+  &:before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: transparent;
+  }
 
   &:hover {
     background-color: white;
@@ -223,6 +263,17 @@ button {
 
   &:active {
     background: rgb(200, 200, 200)
+  }
+
+
+  &.torun {
+    &:before {
+      background: rgba(122, 255, 0, 0.5);
+    }
+  }
+
+  &.tostop {
+
   }
 }
 
@@ -260,7 +311,7 @@ button {
 }
 
 #panels {
-  margin-top: 80px;
+  margin-top: 76px;
   width: 100%;
   height: 100%;
   box-sizing: border-box;
@@ -268,7 +319,6 @@ button {
 
 .proto_panel {
   color: black;
-  padding: 15px 10px;
   overflow: hidden;
   box-sizing: border-box;
 	position: relative;
@@ -277,9 +327,10 @@ button {
   margin-bottom: 12px;
   font-family: 'Open Sans';
   color: white;
-  border: 1px solid rgba(0, 0, 0, 0);
+  border: 1px solid rgba(0, 0, 0, 0.28);
+  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3);
   height: 200px;
-  .anim-fast;
+  min-height: 30px;
 
   &:hover {
     border: 1px solid @primaryAccent;
@@ -294,13 +345,20 @@ button {
 
 	.actionbar {
     display: flex;
-    height: 25px;
+    padding: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.8em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+    text-transform: uppercase;;
+    font-weight: 700;
+    font-size: 0.7em;
+    box-sizing: border-box;
 
 	  h1 {
 	    text-align: left;
 	    color: rgba(255, 255, 255, 0.3);
-	    text-transform: lowercase;
-	    font-weight: 600;
       flex: 1;
 
 			.filename {
@@ -328,6 +386,7 @@ button {
 
   .content {
     height: calc(~"100% - 1em");
+    padding: 10px;
   }
 }
 
@@ -335,21 +394,19 @@ button {
 .banner-anim-transition {
   transition: all 0.3s ease;
   transform: scale3d(1, 1, 1);
-    height: 500px;
-      overflow: hidden;
+  overflow: hidden;
 }
 
 .banner-anim-enter, .banner-anim-leave {
   transform: translate3d(0px, -20px, 0) scale3d(1, 1, 1);
   opacity: 0;
-    height: 0px;
+  height: 0px;
 }
 
 .banner-anim2-transition {
   transition: all 0.3s ease;
   transform: scale3d(1, 1, 1);
-
-      overflow: hidden;
+  overflow: hidden;
 }
 
 .banner-anim2-enter, .banner-anim2-leave {
@@ -371,6 +428,10 @@ button {
 
   #myeditor {
     padding: 0px;
+  }
+
+  #project-options {
+    padding: 16px 5px 16px 5px !important;
   }
 }
 

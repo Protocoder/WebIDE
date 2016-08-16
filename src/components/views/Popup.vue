@@ -1,5 +1,5 @@
 <template>
-  <div class = "popover main_shadow {{ arrow }}" v-bind:style = "arrowposition">
+  <div class = "popover {{ arrow }}" v-bind:style = "arrowposition">
     <slot>
     No content to display
     </slot>
@@ -11,7 +11,8 @@ export default {
   name: 'Popup',
   props: {
     arrow: String,
-    posy: Number
+    posx: String,
+    posy: String
   },
   data () {
     return {
@@ -19,12 +20,11 @@ export default {
   },
   computed: {
     arrowposition: function () {
-      console.log('mm')
-      console.log(this.arrow)
-      console.log(this.posy)
-      console.log('---')
-      if (this.arrow === 'left') return 'bottom: 10px; left: 150px'
-      else return 'top: ' + (this.posy - 32) + 'px; right: 270px'
+      console.log('popup: ' + this.posx + ' ' + this.posy)
+      console.log('popup2: ' + 'top: ' + this.posy + '; left: ' + this.posx + ';')
+
+      if (this.arrow === 'left') return 'top: 260px; left: ' + this.posx + ';'
+      else return 'top: ' + this.posy + '; right: ' + this.posx + ';'
     }
   },
   methods: {
@@ -33,7 +33,7 @@ export default {
 </script>
 
 <style lang = "less">
-@import "../assets/css/variables.less";
+@import "../../assets/css/variables.less";
 
 .popover {
 	background-color: rgba(255, 255, 255, 1);
@@ -42,11 +42,14 @@ export default {
 	font-size: 1em;
   position: absolute;
   width: 300px;
+  min-height: 100px;
   border-radius: 3px;
   z-index: 3;
   border: 0px solid black;
-  padding: 20px;
+  padding: 10px;
   opacity: 1;
+  filter: drop-shadow(0 0 1px rgba(0,0,0,0.4)) drop-shadow(0 3px 4px rgba(0,0,0,0.4));
+  text-align: left;
 
   img {
     width: 100%;
@@ -74,14 +77,16 @@ export default {
     border-left: 0px solid black;
     border-bottom: 0px solid black;
     border-radius: 2px;
-    z-index: 0;
+    z-index: -1;
 	}
 
   &.left {
     &:before {
       left: -10px;
       bottom: 40px;
+      /*
       box-shadow: -5px 3px 5px 0px rgba(0, 0, 0, 0.22);
+      */
     }
   }
 
@@ -91,7 +96,9 @@ export default {
     &:before {
       right: -10px;
       top: 15px;
+      /*
       box-shadow: 5px -3px 5px 0px rgba(0, 0, 0, 0.22);
+      */
     }
   }
 }

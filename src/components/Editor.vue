@@ -5,21 +5,24 @@
 
   <div id = "project-options">
     <div id = "project-actions" class ="">
-    <button id = "project-run" v-on:click="run" class = ""> {{ run_button_state }} </button>
-    <button id = "project-save" v-on:click="save" class = ""> Save </button>
-    <button id = "project-save-as" v-on:click="saveas" class = ""> Save As </button>
+      <button id = "project-run" v-on:click="run" v-bind:class = "{ 'torun' : isConnected }"> {{ run_button_state }} </button>
+      <button id = "project-save" v-on:click="save" class = ""> Save </button>
+      <button id = "project-save-as" v-on:click="saveas" class = ""> Save As </button>
     </div>
   </div>
 
   	<div id = "editor_container" class = "main_shadow">
-
       <div id = "nav_tabs">
+        <div id = "project_name">
+          <p class = "folder">{{project.folder}}</p><p class = "name" v-show = "project.name">{{project.name}}</p>
+        </div>
         <ul id = "tabs">
           <li v-bind:class="{'active': currentTab == $index }" v-on:click="select_tab($index)" v-for="t in tabs">{{t.name}}</li>
         </ul>
-        <div id = "add_tab" class = "fa fa-plus"></div>
+        <div id = "add_tab" class = "fa fa-plus" v-on:click = "add_tab()"></div>
       </div>
 			<div id = "editor"></div>
+      <div id = "msg" v-show = "isError"><p>there is a problem opening the file :/<button id = "reload">try again</button></p></div>
 		</div>
   </div>
 </template>
@@ -49,12 +52,25 @@ export default {
       tabs: [
         { name: 'main.js', text: '' }
       ],
-      store: ''
+      project: '',
+      isConnected: false,
+      isError: false
     }
   },
   route: {
     data () {
-      this.title = 'Editor'
+      console.log(this.$route.params)
+      var type = this.$route.params.type
+      var folder = this.$route.params.folder
+      var project = this.$route.params.project
+      var url = type + '/' + folder + '/' + project
+      Store.project_load('/' + url)
+
+      this.title = url
+
+      console.log(type + ' ' + folder + ' ' + project)
+
+      // this.fetchTutorial(this.$route.params.id)
     }
   },
   ready () {
@@ -79,6 +95,7 @@ export default {
       enableLiveAutocompletion: false
     })
     // this.editor.setPrintMarginColumn(true)
+    this.editor.setShowPrintMargin(false)
     renderer.setPadding(8)
 
     this.session.setMode('ace/mode/javascript')
@@ -169,13 +186,16 @@ export default {
     Store.on('file_loaded', this.load_file)
     Store.on('toggle', this.toggle_section)
     Store.emit('project_list_all')
-    this.store = Store
+    Store.on('device', this.device_update)
+    Store.on('project_created', this.project_created)
   },
   destroyed () {
     console.log('editor destroyed')
     Store.remove_listener('project_loaded', this.load_project)
     Store.remove_listener('file_loaded', this.load_file)
     Store.remove_listener('toggle', this.toggle_section)
+    Store.remove_listener('device', this.device_update)
+    Store.remove_listener('project_created', this.project_created)
 
     this.editor.remove()
   },
@@ -190,11 +210,11 @@ export default {
 
       // run the project
       if (this.run_button_state === 'run') {
-        this.run_button_state = 'stop'
+        // this.run_button_state = 'stop'
         Store.emit('project_action', '/run')
       // stop the project
       } else {
-        this.run_button_state = 'run'
+        // this.run_button_state = 'run'
         Store.emit('project_action', '/stop')
       }
     },
@@ -206,17 +226,22 @@ export default {
     saveas: function () {
       console.log('saveas project')
     },
-    load_project: function () {
-      // update object
-      var files = Store.state.current_project.files
-      for (var i in files) {
-        if (files[i].name === 'main.js') {
-          Store.clearArray(this.tabs)
-          var f = files[i]
-          f.session = ace.createEditSession(f.code, 'ace/mode/javascript')
-          this.tabs.push(f)
-          this.editor.session.setValue(files[i].code)
+    load_project: function (status) {
+      if (status === true) {
+        // update object
+        var files = Store.state.current_project.files
+        this.project = Store.state.current_project.project
+        for (var i in files) {
+          if (files[i].name === 'main.js') {
+            Store.clearArray(this.tabs)
+            var f = files[i]
+            f.session = ace.createEditSession(f.code, 'ace/mode/javascript')
+            this.tabs.push(f)
+            this.editor.session.setValue(files[i].code)
+          }
         }
+      } else { // project couldnt be loaded
+        this.isError = true
       }
     },
     load_file: function (f) {
@@ -233,10 +258,28 @@ export default {
         else this.panel_visibility[k] = false
       }
     },
+    add_tab: function () {
+      this.tabs.push({name: 'qq', text: 'lala'})
+    },
     select_tab: function (index) {
       this.currentTab = index
       // this.editor.session.setValue(this.tabs[index].code)
       this.editor.setSession(this.tabs[index].session)
+    },
+    device_update: function (data) {
+      if (data['running script'] === 'none') {
+        this.run_button_state = 'run'
+      } else {
+        this.run_button_state = 'stop'
+      }
+
+      this.isConnected = data.connected
+    },
+    project_created (status, data) {
+      if (status) {
+        this.panel_visibility.new_project = false
+        this.$route.router.go({name: 'editor.load', params: { type: data.type, folder: data.folder, project: data.name }})
+      }
     }
 
     /*
@@ -250,9 +293,9 @@ export default {
 <style lang = "less">
 @import "../assets/css/variables.less";
 
-
 #myeditor {
   height: 100vh;
+  padding: 0 8px;
 
   #project-actions button{
     width: 85px;
@@ -262,9 +305,11 @@ export default {
 #editor_container {
   position: relative;
   width: 100%;
-  height: calc(~"100% - 123px"); /* hack */
+  height: 100%;
   z-index: 2;
   transition: transform 300ms ease-in-out;
+  display: flex;
+  flex-direction: column;
 
   &.slide {
     transform: translateY(420px);
@@ -272,6 +317,42 @@ export default {
 
   #editor {
     height:100%;
+  }
+
+  #msg {
+    font-size: 1.2em;
+    position: absolute;
+    z-index: 5;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    vertical-align: middle;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.5);
+
+    p {
+      padding: 10px 22px;
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 58px;
+      color: @primaryAccent;
+    }
+
+    #reload {
+      border-left: 1px solid rgba(255, 255, 255, 0.5);
+      padding-left: 12px;
+      margin-left: 12px;
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.9em;
+      background: none;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 
   #nav_tabs {
@@ -290,7 +371,7 @@ export default {
 
       li {
         display: inline-block;
-        padding: 15px 20px;
+        padding: 12px 20px;
         cursor: pointer;
         .anim-fast;
         border-bottom: 4px solid @transparent;
@@ -327,6 +408,34 @@ export default {
       background: rgba(0, 0, 0, 0.5);
     }
   }
+
+  #project_name {
+    background: #f5d328;
+    font-size: 0.7em;
+    padding: 0px 10px;
+    margin-right: 5px;
+    color: #444444;
+    min-width: 50px;
+    text-align: left;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+
+    .folder {
+      padding-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .name::before {
+      content: "└";
+      padding-right: 2px;
+    }
+
+    .name {
+      margin-left: 5px;
+      font-weight: 700;
+    }
+  }
 }
 
 #project-options {
@@ -343,8 +452,8 @@ export default {
 }
 
 .ace_editor {
-  font-size: 1.5em !important;
-  line-height: 1.35em !important;
+  font-size: 1.1em !important;
+  line-height: 1.25em !important;
 }
 
 .ace_dark .ace_gutter-cell.ace_info {

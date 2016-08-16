@@ -1,10 +1,20 @@
 <template>
-  <div id = "file_manager" class = "proto_panel">
+  <div id = "file_manager"
+    class = "proto_panel"
+    :class = "{'hovered': hovering}"
+    @dragstart = "handleDragStart"
+    @dragenter = "handleDragEnter"
+    @dragleave = "handleDragLeave"
+    @dragover.prevent = "handleDragOver"
+    @dragend = "handleDragEnd"
+    @drop = "handleDrop"
+    >
     <div class = "actionbar">
-      <h1><span class = "name">{{project_name}}</span> Files</h1>
+      <h1>Files {{hovering}} {{dndState}}</h1>
       <p>{{current_folder}}</p>
       <ul>
-        <li class="fa fa-folder"></li>
+        <li class="fa fa-folder" for = "get_file"> <input id = "get_file" type = "file" @change = "onFileChange" multiple = ""> </li>
+        <li class="fa fa-upload" for = "get_file"> <input id = "get_file" type = "file" @change = "onFileChange" multiple = ""> </li>
       </ul>
 
       <!--
@@ -54,18 +64,28 @@
           </tr>
         </tbody>
       </table>
-    </div>
-  </div>
 
-  <popup arrow = "right" :posy = "posyel" v-if = "showpopover" v-on-clickaway = "qaway">
-  {{{popup_content}}}
-  </popup>
+    </div>
+    <div id = "uploading" v-show = "showUploadingFiles">
+      <h1> uploading... </h1>
+      <ul>
+        <li v-for = "u in uploadingFiles" v-show = "u.uploading">
+          {{u.data.name}} {{u.uploading}}
+          <div class = "progress pre"></div>
+          <div class = "progress"></div>
+        </li>
+      </ul>
+    </div>
+
+    <popup arrow = "right" :posx = "posx" :posy = "posy" v-if = "showpopover">
+    {{{popup_content}}}
+    </popup>
+  </div>
 </template>
 
 <script>
 import Store from '../Store'
-import Popup from './Popup'
-import { mixin as clickaway } from 'vue-clickaway'
+import Popup from './views/Popup'
 
 export default {
   name: 'FileManager',
@@ -73,7 +93,6 @@ export default {
     Store,
     Popup
   },
-  mixins: [ clickaway ],
   data () {
     return {
       showpopover: false,
@@ -82,6 +101,7 @@ export default {
       popup_content: '',
       current_folder: '',
       project_name: '',
+      hovering: false,
       files: [
         /*
         { type: 'folder-o', name: 'qq1.png', size: '25kb' },
@@ -96,7 +116,13 @@ export default {
         { type: 'file-o', name: 'qqm.png', size: '25kb' },
         { type: 'file-o', name: 'qqmm.png', size: '25kb' }
         */
-      ]
+      ],
+      uploadingFiles: [
+      ],
+      showUploadingFiles: false,
+      dndState: 'none',
+      posx: 0,
+      posy: 0
     }
   },
   methods: {
@@ -107,12 +133,13 @@ export default {
         // we can change dir
         this.change_dir(selected_file.path)
       } else {
-        console.log('qq')
         if (selected_file.name.endsWith('.png') ||
             selected_file.name.endsWith('.jpg') ||
             selected_file.name.endsWith('.jpeg')) {
           // we check if we preview or open in editor
-          this.posyel = e.clientY
+          this.posx = e.clientX + 'px'
+          this.posy = e.clientY + 'px'
+          console.log('pos', this.posx, this.posy)
           this.selected = i
           var url = Store.get_url_for_current_project() + 'files/load/' + selected_file.name
           this.popup_content = '<img src=' + url + '/>'
@@ -146,56 +173,82 @@ export default {
     change_dir: function (path) {
       console.log('changing dir ' + path)
       Store.list_files_in_path(path)
+    },
+
+    /* file upload */
+    onFileChange: function (e) {
+      console.log('----------------- onFileChange')
+      this.showUploadingFiles = true
+      var files = e.target.files || e.dataTransfer.files
+      // console.log(this.uploadingFiles)
+
+      for (var i = 0; i < files.length; i++) {
+        // console.log(files[i].name + ' ' + files[i].size + ' ' + files[i].type)
+        this.uploadingFiles.push({data: files[i], uploading: true})
+        Store.upload_file(this.uploadingFiles[i])
+      }
+      console.log(this.uploadingFiles)
+
+      // if (!files.length) return
+      // this.createImage(files[0])
+    },
+    file_uploaded: function (name) {
+      console.log('------------------ file_uploaded')
+      var uploading = false
+
+      for (var i = 0; i < this.uploadingFiles.length; i++) {
+        if (this.uploadingFiles[i].data.name === name) {
+          console.log(name + ' is uploaded')
+          // console.log(this.uploadingFiles)
+          // console.log(typeof (this.uploadingFiles))
+          this.uploadingFiles[i].uploading = false
+        }
+        uploading = uploading || this.uploadingFiles[i].uploading
+        console.log(this.uploadingFiles[i].uploading)
+      }
+
+      console.log(this.uploadingFiles)
+      if (!uploading) {
+        this.showUploadingFiles = false
+        Store.list_files_in_path('')
+      }
+    },
+    createImage: function (file) {
+      // var image = new Image()
+      var reader = new window.FileReader()
+      reader.onload = (e) => {
+        var image = e.target.result
+        console.log(image)
+      }
+      reader.readAsDataURL(file)
+    },
+    handleDragStart: function () {
+      this.dndState = 'dragStart'
+    },
+    handleDragEnter: function () {
+      this.dndState = 'dragEnter'
+      this.hovering = true
+    },
+    handleDragLeave: function () {
+      this.dndState = 'dragLeave'
+      this.hovering = false
+    },
+    handleDragOver: function () {
+      this.dndState = 'dragOver'
+      this.hovering = true
+    },
+    handleDragEnd: function () {
+      this.dndState = 'dragEnd'
+    },
+    handleDrop: function () {
+      this.dndState = 'drop'
+      this.hovering = false
     }
   },
   ready () {
     console.log('ready')
     Store.on('project_files', this.list_files)
-
-    // var fileselect = document.getElementById('fileselect')
-    var filedrag = document.getElementById('file_manager')
-    // var submitbutton = document.getElementById('submitbutton')
-
-    // check if file d&d is supported
-    if (window.File && window.FileList && window.FileReader && window.Blob) {
-      // filedrag.style.display = 'block'
-      filedrag.addEventListener('dragover', function (e) {
-        console.log('dragover')
-        e.stopPropagation()
-        e.preventDefault()
-        e.target.className = 'dragover'
-        // filedrag.className = 'dragover'
-        e.dataTransfer.dropEffect = 'copy'
-      }, false)
-
-      /*
-      filedrag.addEventListener('dragleave', function (e) {
-        console.log('dragleave')
-        e.stopPropagation()
-        e.preventDefault()
-        // e.target.className = ''
-      }, false)
-      */
-      filedrag.addEventListener('drop', function (e) {
-        e.stopPropagation()
-        e.preventDefault()
-        var files = e.dataTransfer.files
-        var file = files[0]
-        console.log(file)
-        window.alert(file.name + ' ' + file.size + ' ' + file.type)
-      }, false)
-      /*
-      filedrag.addEventListener('dragend', function () {
-        console.log('dragend')
-      }, false)
-      filedrag.addEventListener('dragover', function () {
-        console.log('dragover')
-      }, false)
-      filedrag.addEventListener('dragexit', function () {
-        console.log('dragexit')
-      }, false)
-      */
-    }
+    Store.on('file_uploaded', this.file_uploaded)
   },
   created () {
 
@@ -210,17 +263,33 @@ export default {
 @import "../assets/css/variables.less";
 
 
-&.dragover {
-  border: 2px solid red;
-  background: red;
-}
-
 #file_manager {
   z-index: 2;
   background: rgba(0, 0, 0, 0.2);
+  height: 150px;
+  position: relative;
 
-  .actionbar {
+  &.hovered {
+    border: 2px solid red;
+    background: tomato;
 
+    input {
+      display: block;
+    }
+  }
+
+  input {
+    display: block;;
+    position: absolute;
+    cursor: pointer;
+    top: 0px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    display: none;
   }
 
   table {
@@ -230,9 +299,11 @@ export default {
 
     thead {
       color: rgba(255, 255, 255, 0.5);
+      font-weight: 600;
+      font-size: 0.8em;
 
       th {
-        padding:5px;
+        padding: 0px 5px 12px 5px;
       }
 
       th:first-child {
@@ -262,6 +333,54 @@ export default {
       tr:nth-child(odd) td {
       }
     }
+  }
+
+  #uploading {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    top: 0;
+    font-size: 0.8em;
+    font-weight: 500;
+    font-family: 'Open Sans';
+    box-sizing: content-box;
+    vertical-align: middle;
+    display: flex;
+    align-items: center;
+
+    h1 {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 8px;
+    }
+
+    ul {
+      list-style: none;
+      width: 100%;
+      padding: 8px 22px;
+      li {
+        position: relative;
+        width: 100%;
+        padding: 0.7em 0px;
+      }
+    }
+
+    .progress {
+      position: absolute;
+      background: #ffeb00;
+      height: 2px;
+      width: 25%;
+      border-radius: 2px;
+      margin-top: 3px;
+    }
+
+    .pre {
+      background: gray;
+      width: 100%;
+    }
+
   }
 }
 

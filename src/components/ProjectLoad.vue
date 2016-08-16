@@ -40,6 +40,7 @@ export default {
       selected: -1,
       folder_chosen: [],
       uri: {
+        type: '',
         folder: '',
         fullpath: ''
       }
@@ -53,14 +54,18 @@ export default {
       // console.log(pindex, index, this.projects[pindex].files[index].name)
       this.pselected = pindex
       this.selected = index
-      this.uri.folder = '/' + this.state.projects[pindex].name + '/' + this.state.projects[pindex].files[index].name
+      this.uri.type = this.state.projects[pindex].name
+      this.uri.folder = this.state.projects[pindex].files[index].name
+
       this.folder_chosen = this.state.projects[pindex].files[index].files
     },
-    load_project: function (folder) {
-      this.uri.fullpath = this.uri.folder + '/' + folder.name
+    load_project: function (project) {
+      // this.uri.fullpath = this.uri.folder + '/' + folder.name
       // Store.emit('project_action', '/run', this.uri.fullpath)
-      Store.emit('project_load', this.uri.fullpath)
+      // Store.emit('project_load', this.uri.fullpath)
+      console.log(this.uri.fullpath, this.uri.type, this.uri.folder, project.name)
       Store.emit('toggle', 'load_project')
+      this.$route.router.go({name: 'editor.load', params: { type: this.uri.type, folder: this.uri.folder, project: project.name }})
     }
   },
   created () {
@@ -99,8 +104,8 @@ export default {
     cursor: pointer;
 
     li {
-      padding: 5px;
-      font-size: 1.3em;
+      padding: 0.3em;
+      font-size: 1.2em;
       font-weight: 300;
 
       &:hover, &.selected {

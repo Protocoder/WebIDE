@@ -8,7 +8,8 @@ module.exports = {
   ],
   'globals': {
     "ace": true,
-    "WebSocket": true
+    "WebSocket": true,
+    "FormData": true
   },
   // add your custom rules here
   'rules': {

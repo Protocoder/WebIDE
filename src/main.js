@@ -4,7 +4,8 @@ import App from './App'
 import './assets/css/font-awesome/css/font-awesome.min.css'
 import Router from 'vue-router'
 import Resource from 'vue-resource'
-import Login from './components/Login.vue'
+import Login from './components/views/Login.vue'
+import Editor from './components/Editor.vue'
 import TutorialLoader from './components/TutorialLoader'
 import About from './components/About'
 import Preferences from './components/Preferences'
@@ -41,8 +42,15 @@ router.map({
     name: 'login',
     component: Login
   },
-  '/editor': {
-    name: 'editor',
+  '/editor/:type/:folder/:project': {
+    name: 'editor.load',
+    component: Editor,
+    /*
+    component: function (resolve) {
+     require(['./components/Editor.vue'], resolve)
+    },
+    */
+    title: 'Protocoder',
     subRoutes: {
       '/': {
         component: {

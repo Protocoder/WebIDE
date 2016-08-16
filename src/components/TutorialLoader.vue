@@ -84,18 +84,18 @@ export default {
   }
 }
 
-#panels #tutorial {
+#tutorial {
   overflow-y: hidden;
   color: #222;
   background-color: white;
   .main_shadow;
-  line-height: 1.2em;
-  font-size: 1.2em;
+  line-height: 1.1em;
+  font-size: 1em;
 
   code {
     font-family: Source Code Pro;
   }
-  
+
   h1, h2, h3, h4, h5, h6, p, ul, ol, li, blockquote, table, pre {
     padding: 0em 0em;
     margin-bottom: 0.5em;

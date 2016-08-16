@@ -4,7 +4,7 @@
   <nav id = "sidebar">
     <!-- -->
     <ul class = "menu_separation">
-      <li id = "new_project" v-on:click="toggle($event)" v-link="{activeClass: 'selected'}" v-bind:class = "{'selected':'new_project' == navitem }"><div class = "icon-box">+</div>New</li>
+      <li id = "new_project" v-on:click="toggle($event)" v-bind:class = "{'selected':'new_project' == navitem }"><div class = "icon-box">+</div>New</li>
     </ul>
 
     <ul class = "menu_separation">
@@ -15,7 +15,7 @@
 
     <!-- this group changes the view in the router -->
     <ul class = "">
-      <li id = "tutorials" class = "disabled" v-link="{ name: 'tutorial', params: { id: 1 }, activeClass: 'selected' }"><div class = "icon-box">*</div>Tutorials</li>
+      <li id = "tutorials" class = "" v-link="{ name: 'tutorial', params: { id: 1 }, activeClass: 'selected' }"><div class = "icon-box">*</div>Tutorials</li>
       <li id = "preferences" class = "disabled" v-link="{ name: 'preferences', activeClass: 'selected' }"><div class = "icon-box">"</div>Preferences</li>
       <li id = "about" class = "disabled" v-link="{ name: 'about', activeClass: 'selected' }"><div class = "icon-box">?</div>About</li>
     </ul>
@@ -31,7 +31,7 @@ export default {
   name: 'Sidebar',
   data () {
     return {
-      navitem: 'load_project',
+      navitem: '',
       qq: true
     }
   },
@@ -39,7 +39,12 @@ export default {
     toggle: function (event) {
       var id = event.currentTarget.id
 
-      this.navitem = id
+      if (this.navitem !== id) {
+        this.navitem = id
+      } else {
+        this.navitem = ''
+      }
+      console.log(this.navitem)
       // api.project_list_all("", function() {
       //
       // })
@@ -75,13 +80,14 @@ export default {
     }
 
     li {
-       padding: 12px 15px;
+       padding: 8px 5px;
        margin-bottom: 2px;
        cursor: pointer;
        text-decoration: none;
        text-transform: uppercase;
        font-family: 'Open Sans';
-       font-weight: 100;
+       font-weight: 700;
+       font-size: 0.7em;
        color: #FFFFFF;
        background: transparent linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0)) repeat scroll 0% 0%;
        border-left: 2px solid transparent;
@@ -105,7 +111,7 @@ export default {
 
        .icon-box {
          border-radius: 2px;
-         margin-right: 12px;
+         margin-right: 5px;
          display: inline-block;
          width: 15px;
          text-align: center;

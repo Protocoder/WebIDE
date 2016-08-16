@@ -5,18 +5,18 @@
       <div id = "device_screen"> </div>
     </div>
     <!-- <i class = "fa fa-mobile fa-5x"></i> -->
-    <p> {{ device_properties.modelName }} </p>
+    <p> {{ device_properties['model name'] }} </p>
+
+
+    <popup v-if = "showpopover" arrow = "left" :posx = "posx" :posy = "posy">
+      <ul>
+        <li v-for = "prop in device_properties">
+          <span class = "key">{{ $key }} :</span> {{ prop }}
+        </li>
+      </ul>
+    </popup>
+
   </div>
-
-  <popup v-if = "showpopover" arrow = "left">
-    <ul>
-      <li v-for = "prop in device_properties">
-        <span class = "key">{{ $key }} :</span> {{ prop }}
-      </li>
-    </ul>
-  </popup>
-
-
   <!--
   <div id = "device_popup" class = "popover main_shadow" v-show = "showpopover">
     <div class = "arrow">
@@ -33,7 +33,7 @@
 
 <script>
 import Store from '../Store'
-import Popup from './Popup'
+import Popup from './views/Popup'
 
 export default {
   name: 'Device',
@@ -50,12 +50,17 @@ export default {
         network_connection: 'Wifi',
         internet_connection: 'yes',
         orientation: 'landscape'
-      }
+      },
+      posx: '0px'
     }
   },
   methods: {
     togglepopup: function () {
+      var rect = this.$el.getBoundingClientRect()
+      console.log('qq', rect.top, rect.left, rect.height)
       this.showpopover = !this.showpopover
+      this.posx = rect.left + rect.width + 'px'
+      this.posy = rect.top + rect.height / 2 + 'px'
     },
     device_update: function (data) {
       this.device_properties = data
@@ -98,6 +103,9 @@ export default {
 
   p {
   	margin: 0 0 0px;
+    font-weight: 600;
+    text-transform: lowercase;
+    font-size: 0.7em;
   }
 
   i {
@@ -111,8 +119,8 @@ export default {
 
 #device_frame {
   .all-transitions;
-  height: 64px;
-  width: 36px;
+  height: 52px;
+  width: 28px;
   background: transparent none repeat scroll 0% 0%;
   border: 1px solid rgba(255, 255, 255, 0.53);
   margin: 12px auto;
@@ -129,10 +137,11 @@ export default {
 
   #device_screen {
     .all-transitions;
-    width: 34px;
-    height: 55px;
+    width: 26px;
+    height: 42px;
     background: rgba(255, 255, 255, 0.06) none repeat scroll 0% 0%;
-    border: 1px solid rgba(255, 255, 255, 0.17);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1px;
   }
 }
 

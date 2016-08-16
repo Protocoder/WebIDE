@@ -69,14 +69,17 @@ store.project_list_all = function () {
 store.project_load = function (uri) {
   var query = { }
 
+  console.log(uri)
+
   Vue.http({ url: get_url_webapp('/api/project' + uri + '/load'), method: 'GET', data: query }).then(function (response) {
     // console.log(TAG + ': project_load(status) > ' + response.status)
     store.state.current_project = response.data
-    store.emit('project_loaded')
+    store.emit('project_loaded', true)
     store.emit('project_files')
 
     // store.list_files_in_path('')
   }, function (response) {
+    store.emit('project_loaded', false)
     // console.log(TAG + ': project_load(status) > ' + response.status)
   })
 }
@@ -115,6 +118,26 @@ store.load_file = function (file) {
 }
 
 /*
+ * Create a project
+ */
+store.project_create = function (projectName) {
+  console.log('project create')
+
+  var query = { }
+
+  // vm.$log()
+
+  Vue.http({ url: get_url_webapp('/api/project' + this.get_userproject_url(projectName) + '/create'), method: 'GET', data: query }).then(function (response) {
+    var data = {'type': store.userproject.type, 'folder': store.userproject.folder, 'name': projectName}
+    store.emit('project_created', true, data)
+    store.project_list_all()
+  }, function (response) {
+    store.emit('project_created', false)
+    console.log('project_create(status) > ' + response.status)
+  })
+}
+
+/*
  * Save a project
  */
 store.project_save = function (files) {
@@ -128,8 +151,7 @@ store.project_save = function (files) {
 
   // vm.$log()
 
-  Vue.http.post(get_url_webapp('/api/project/save' + this.get_current_project()), query).then(
-  function (response) {
+  Vue.http.post(get_url_webapp('/api/project' + this.get_current_project() + '/save'), query).then(function (response) {
     // console.log(TAG + ': project_save(status) > ' + response.status)
     // store.emit('project_saved')
   }, function (response) {
@@ -164,6 +186,44 @@ store.execute_code = function (code) {
   })
 }
 
+store.upload_file = function (file) {
+  var formData = new FormData()
+  // formData.append('_token', this.token) // just the csrf token
+  // console.log(file)
+  formData.append('name', file.data.name)
+  formData.append('type', file.data.type)
+  formData.append('file', file.data)
+
+  Vue.http({
+    url: get_url_webapp('/api/project' + this.get_current_project() + '/files/upload/'),
+    method: 'POST',
+    data: formData,
+    xhr: {
+      onprogress: function (e) {
+        // console.log(e)
+        // console.log('uploading')
+
+        if (e.lengthComputable) {
+          // var progress = (e.loaded / e.total) * 100
+          // console.log('p1 ' + progress)
+        }
+      },
+      onreadystatechange: function (e) {
+        // console.log(e + this.readyState)
+        if (this.readyState === 4) {
+          // console.log(e)
+        }
+      }
+    }
+  }).then(function (response) {
+    // console.log('File sent ' + response.data) // this block is never triggered
+    // console.log(response)
+    store.emit('file_uploaded', response.data)
+  }, function (response) {
+    console.log('Error occurred...')
+  })
+}
+
 /*
 * Event Listeners
 */
@@ -177,6 +237,11 @@ store.on('project_save', store.project_save)
  */
 store.get_current_project = function () {
   return '/' + store.state.current_project.project.folder + '/' + store.state.current_project.project.name
+}
+
+store.userproject = {'type': 'user_projects', 'folder': 'User Projects'}
+store.get_userproject_url = function (name) {
+  return '/' + store.userproject.type + '/' + store.userproject.folder + '/' + name
 }
 
 store.clearArray = function (dst) {
@@ -215,6 +280,19 @@ store.get_url_for_current_project = function () {
   return get_url_webapp('/api/project/' + encodeURIComponent(p.folder + '/' + p.name + '/'))
 }
 
+store.load_documentation = function () {
+  var query = { }
+
+  Vue.http({ url: '/static/documentation.json', method: 'GET', data: query }).then(function (response) {
+    // console.log(TAG + ': project_load(status) > ' + response.status)
+    console.log('loading documentation')
+    console.log(response.data)
+    store.state.documentation = response.data
+    store.emit('documentation_loaded')
+  }, function (response) {
+  })
+}
+
 /*
 * Websockets for rapid communication
 */
@@ -232,7 +310,7 @@ store.websockets_init = function () {
     // console.log('ws connected')
     wsIsConnected = true
     clearInterval(reconnection_interval) // _s the reconnection
-    // this.protoEvent.send('ui_appConnected', true)
+    store.emit('device', { connected: true })
   }
 
   ws.onmessage = function (e) {
@@ -247,6 +325,7 @@ store.websockets_init = function () {
         break
       // getting device data
       case 'device':
+        data.connected = true
         store.emit('device', data)
         break
       default:
@@ -257,6 +336,7 @@ store.websockets_init = function () {
     // console.log('ws disconnected')
     // this.protoEvent.send('ui_appConnected', false)
     wsIsConnected = false
+    store.emit('device', { connected: false })
 
     // try to reconnect
     reconnection_interval = setTimeout(function () {
@@ -271,3 +351,50 @@ store.send_ws_data = function (data) {
 }
 
 store.websockets_init()
+
+store.mydragg = function () {
+  return {
+    move: function (divid, xpos, ypos) {
+      divid.style.left = xpos + 'px'
+      divid.style.top = ypos + 'px'
+    },
+    startMoving: function (divid, container, evt) {
+      evt = evt || window.event
+
+      var posX = evt.clientX
+      var posY = evt.clientY
+      var divTop = divid.style.top
+      var divLeft = divid.style.left
+
+      var eWi = parseInt(divid.style.width)
+      var eHe = parseInt(divid.style.height)
+      var cWi = parseInt(document.getElementById(container).style.width)
+      var cHe = parseInt(document.getElementById(container).style.height)
+
+      document.getElementById(container).style.cursor = 'move'
+      divTop = divTop.replace('px', '')
+      divLeft = divLeft.replace('px', '')
+      var diffX = posX - divLeft
+      var diffY = posY - divTop
+
+      document.onmousemove = function (evt) {
+        evt = evt || window.event
+        var posX = evt.clientX
+        var posY = evt.clientY
+        var aX = posX - diffX
+        var aY = posY - diffY
+
+        if (aX < 0) aX = 0
+        if (aY < 0) aY = 0
+        if (aX + eWi > cWi) aX = cWi - eWi
+        if (aY + eHe > cHe) aY = cHe - eHe
+
+        store.mydragg.move(divid, aX, aY)
+      }
+    },
+    stopMoving: function (container) {
+      document.getElementById(container).style.cursor = 'default'
+      document.onmousemove = function () {}
+    }
+  }
+}

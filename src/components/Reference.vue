@@ -43,5 +43,28 @@ export default {
 }
 
 
-
 </style>
+
+<!-- REFERENCE
+
+description
+
+[________________] SEARCH
+
+list of big objects
+
+bo1       bo2
+-----     -----
+method1   method1
+method2   method2
+method3
+method4
+method5
+
+
+-->
+
+<!-- QUICK REFERENCE
+___________________________ SEARCH
+
+-->
