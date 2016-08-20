@@ -208,6 +208,7 @@ export default {
         for (var i in files) {
           if (files[i].name === 'main.js') {
             Store.clearArray(this.tabs)
+            Store.clearArray(this.sessions)
             this.load_file(files[i])
           }
         }
