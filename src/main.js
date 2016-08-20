@@ -7,6 +7,7 @@ import Resource from 'vue-resource'
 import Login from './components/views/Login.vue'
 import Editor from './components/Editor.vue'
 import TutorialLoader from './components/TutorialLoader'
+import DocumentationBrowser from './components/DocumentationBrowser'
 import About from './components/About'
 import Preferences from './components/Preferences'
 // import $ from 'jquery'
@@ -42,6 +43,11 @@ router.map({
     name: 'login',
     component: Login
   },
+  '/editor': {
+    name: 'editor',
+    component: Editor,
+    title: 'Protocoder'
+  },
   '/editor/:type/:folder/:project': {
     name: 'editor.load',
     component: Editor,
@@ -58,6 +64,11 @@ router.map({
         }
       }
     }
+  },
+  '/documentation': {
+    name: 'documentation',
+    title: 'documentation',
+    component: DocumentationBrowser
   },
   '/tutorial/:id': {
     name: 'tutorial',

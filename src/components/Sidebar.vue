@@ -15,9 +15,10 @@
 
     <!-- this group changes the view in the router -->
     <ul class = "">
-      <li id = "tutorials" class = "" v-link="{ name: 'tutorial', params: { id: 1 }, activeClass: 'selected' }"><div class = "icon-box">*</div>Tutorials</li>
-      <li id = "preferences" class = "disabled" v-link="{ name: 'preferences', activeClass: 'selected' }"><div class = "icon-box">"</div>Preferences</li>
-      <li id = "about" class = "disabled" v-link="{ name: 'about', activeClass: 'selected' }"><div class = "icon-box">?</div>About</li>
+      <li id = "load_documentation" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_documentation' == navitem }"><div class = "icon-box">/</div>Documentation</li>
+      <li id = "load_tutorials" class = "disabled" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_tutorials' == navitem }"><div class = "icon-box">*</div>Tutorials</li>
+      <li id = "load_preferences" class = "disabled" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_preferences' == navitem }"><div class = "icon-box">"</div>Preferences</li>
+      <li id = "load_about" class = "disabled" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_about' == navitem }"><div class = "icon-box">?</div>About</li>
     </ul>
 
   </nav>

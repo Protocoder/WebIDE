@@ -1,5 +1,5 @@
 <template>
-  <div id="main_container"  @dragenter.prevent.stop = "handleDragEnter" @dragend = "handleDragLeave">
+  <div id="main_container">
     <div id = "left_container" class = "container">
       <logo></logo>
       {{dndState}}
@@ -8,7 +8,13 @@
     </div>
 
     <div id = "central_container" class = "container">
-      <documentation-browser></documentation-browser>
+      <project-new v-show = "panel_visibility.new_project" transition="banner-anim"></project-new>
+      <project-load v-show = "panel_visibility.load_project" transition="banner-anim"></project-load>
+      <documentation-browser v-show = "panel_visibility.load_documentation" transition="banner-anim"></documentation-browser>
+      <tutorial-loader v-show = "panel_visibility.load_tutorials" transition="banner-anim"></tutorial-loader>
+      <preferences v-show = "panel_visibility.load_preferences" transition="banner-anim"></preferences>
+      <about v-show = "panel_visibility.load_about" transition="banner-anim"></about>
+
       <!--
       <dashboard></dashboard>
     -->
@@ -79,6 +85,11 @@ import FileManager from './components/FileManager'
 import Console from './components/Console'
 import Dashboard from './components/Dashboard'
 
+import ProjectLoad from './components/ProjectLoad'
+import ProjectNew from './components/ProjectNew'
+import DocumentationBrowser from './components/DocumentationBrowser'
+import Preferences from './components/Preferences'
+import About from './components/About'
 import TutorialLoader from './components/TutorialLoader'
 
 import Gcanvas from './components/visual/Gcanvas'
@@ -87,8 +98,6 @@ import P5 from './components/views/P5js'
 import VideoPlayer from './components/views/VideoPlayer'
 import AudioPlayer from './components/views/AudioPlayer'
 import Calender from './components/views/Calender'
-
-import DocumentationBrowser from './components/views/DocumentationBrowser'
 
 // import ResizeHandle from 'resize-handle'
 
@@ -100,24 +109,37 @@ export default {
     Handle,
 
     Editor,
+    ProjectLoad,
+    ProjectNew,
+    DocumentationBrowser,
+    TutorialLoader,
+    Preferences,
+    About,
     Banner,
 
     FileManager,
     Console,
     Dashboard,
 
-    TutorialLoader,
-
     Gcanvas,
     Webview,
     P5,
     VideoPlayer,
     AudioPlayer,
-    Calender,
-    DocumentationBrowser
+    Calender
   },
   data () {
     return {
+      panel_visibility: {
+        new_project: false,
+        load_project: false,
+        load_example: false,
+        load_demo: false,
+        load_documentation: false,
+        load_tutorials: false,
+        load_preferences: false,
+        load_about: false
+      },
       dndState: ''
       // sharedState: Store.state
     }
@@ -132,10 +154,23 @@ export default {
     },
     handleDragLeave: function () {
       this.dndState = 'leave'
+    },
+    toggle_section: function (what) {
+      console.log(what)
+      // if toggle the given panel, the rest off
+      for (var k in this.panel_visibility) {
+        if (k === what) this.panel_visibility[k] = !this.panel_visibility[k]
+        else this.panel_visibility[k] = false
+      }
+    },
+    project_created: function (created) {
+      if (created) this.panel_visibility.new_project = false
     }
   },
   created () {
+    Store.on('toggle', this.toggle_section)
     Store.emit('project_list_all')
+    Store.on('project_created', this.project_created)
 
     // show popup when trying to exit app
     window.onbeforeunload = function (e) {
@@ -149,6 +184,8 @@ export default {
 
   },
   destroyed () {
+    Store.remove_listener('toggle', this.toggle_section)
+    Store.remove_listener('project_created', this.project_created)
   },
   events: {
     'run': function (msg) {
@@ -319,7 +356,6 @@ button {
 
 .proto_panel {
   color: black;
-  overflow: hidden;
   box-sizing: border-box;
 	position: relative;
   width: 100%;
@@ -332,11 +368,16 @@ button {
   height: 200px;
   min-height: 30px;
 
+  .wrapper {
+    overflow: hidden;
+    height: 100%;
+  }
+  
   &:hover {
     border: 1px solid @primaryAccent;
 
     .actionbar ul {
-      opacity: 1;
+      display: block;
     }
   }
 
@@ -367,7 +408,7 @@ button {
 	  }
 
 		ul {
-      opacity: 0;
+      display: none;
 
 			li {
 				display: inline-block;
@@ -387,6 +428,7 @@ button {
   .content {
     height: calc(~"100% - 1em");
     padding: 10px;
+    overflow-y: auto;
   }
 }
 

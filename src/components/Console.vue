@@ -1,16 +1,18 @@
 <template>
   <div id = "console" class = "proto_panel">
-    <div class = "actionbar">
-      <h1>console</h1>
-      <ul>
-        <li class="fa fa-lock" v-on:click="toggleLock()" v-bind:class="{'enabled':lock}"></li>
-        <li class="fa fa-trash" v-on:click="clear()"></li>
-      </ul>
-    </div>
-    <div class = "content">
-      <ul v-el:log>
-        <li v-for="log in logs | limitBy 10000000" class={{log.action}}> {{log.text}} </li>
-      </ul>
+    <div class = "wrapper">
+      <div class = "actionbar">
+        <h1>console</h1>
+        <ul>
+          <li class="fa fa-lock" v-on:click="toggleLock()" v-bind:class="{'enabled':lock}"></li>
+          <li class="fa fa-trash" v-on:click="clear()"></li>
+        </ul>
+      </div>
+      <div class = "content">
+        <ul v-el:log>
+          <li v-for="log in logs | limitBy 10000000" class={{log.action}}> {{log.text}} </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>

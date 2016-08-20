@@ -15,7 +15,7 @@ export default {
     var that = this
     var handle = this.$el
     var container = document.querySelector('#' + this.container)
-    console.log(this.orientation + ' ' + handle + ' ' + this.container)
+    // console.log(this.orientation + ' ' + handle + ' ' + this.container)
 
     handle.onmousedown = function (e) {
       var handlePos
@@ -27,7 +27,7 @@ export default {
         containerSize = container.getBoundingClientRect().width
         // console.log(that.container + ' qq')
       } else {
-        console.log('qq2')
+        // console.log('qq2')
         handlePos = handle.getBoundingClientRect().top
         containerSize = container.getBoundingClientRect().height
       }
@@ -60,7 +60,7 @@ export default {
     }
 
     handle.onmouseup = function () {
-      console.log('handle mouse up')
+      // console.log('handle mouse up')
       document.onmousemove = null
     }
   },

@@ -1,15 +1,12 @@
 <template>
   <div id = "myeditor">
-  <project-new v-show = "panel_visibility.new_project" transition="banner-anim"></project-new>
-  <project-load v-show = "panel_visibility.load_project" transition="banner-anim"></project-load>
-
-  <div id = "project-options">
-    <div id = "project-actions" class ="">
-      <button id = "project-run" v-on:click="run" v-bind:class = "{ 'torun' : isConnected }"> {{ run_button_state }} </button>
-      <button id = "project-save" v-on:click="save" class = ""> Save </button>
-      <button id = "project-save-as" v-on:click="saveas" class = ""> Save As </button>
+    <div id = "project-options">
+      <div id = "project-actions" class ="">
+        <button id = "project-run" v-on:click="run" v-bind:class = "{ 'torun' : isConnected }"> {{ run_button_state }} </button>
+        <button id = "project-save" v-on:click="save" class = ""> Save </button>
+        <button id = "project-save-as" v-on:click="saveas" class = ""> Save As </button>
+      </div>
     </div>
-  </div>
 
   	<div id = "editor_container" class = "main_shadow">
       <div id = "nav_tabs">
@@ -17,9 +14,9 @@
           <p class = "folder">{{project.folder}}</p><p class = "name" v-show = "project.name">{{project.name}}</p>
         </div>
         <ul id = "tabs">
-          <li v-bind:class="{'active': currentTab == $index }" v-on:click="select_tab($index)" v-for="t in tabs">{{t.name}}</li>
+          <li v-bind:class="{'active': currentTab == $index, 'isModified': t.modified }" v-on:click="select_tab($index)" v-for="t in tabs">{{t.name}}</li>
         </ul>
-        <div id = "add_tab" class = "fa fa-plus" v-on:click = "add_tab()"></div>
+        <!-- <div id = "add_tab" class = "fa fa-plus" v-on:click = "add_tab()"></div> -->
       </div>
 			<div id = "editor"></div>
       <div id = "msg" v-show = "isError"><p>there is a problem opening the file :/<button id = "reload">try again</button></p></div>
@@ -30,28 +27,19 @@
 <script>
 import Store from '../Store'
 
-import ProjectLoad from './ProjectLoad'
-import ProjectNew from './ProjectNew'
-
 export default {
   name: 'Editor',
   components: {
-    ProjectLoad,
-    ProjectNew
+
   },
   data () {
     return {
-      panel_visibility: {
-        new_project: false,
-        load_project: false,
-        load_example: false,
-        load_demo: false
-      },
       run_button_state: 'run',
       currentTab: 0,
       tabs: [
-        { name: 'main.js', text: '' }
+        { name: 'main.js', text: '', modified: '' }
       ],
+      sessions: [],
       project: '',
       isConnected: false,
       isError: false
@@ -86,7 +74,6 @@ export default {
     ace_.require('ace/ext/language_tools')
 
     var renderer = this.editor.renderer
-    this.session = this.editor.getSession()
 
     this.editor.setTheme('ace/theme/monokai')
     this.editor.setOptions({
@@ -98,22 +85,10 @@ export default {
     this.editor.setShowPrintMargin(false)
     renderer.setPadding(8)
 
-    this.session.setMode('ace/mode/javascript')
-    this.session.setUseSoftTabs(true)
-    this.session.setTabSize(2)
-
-    var that = this
-    this.session.on('change', function (e) {
-      // update code
-      that.tabs[that.currentTab].code = that.session.getValue()
-      // console.log(that.session.getValue())
-      // that.$log()
-    })
-
     /*
      * Commands
      */
-
+    var that = this
     // run
     this.editor.commands.addCommand({
       name: 'run_command',
@@ -151,7 +126,7 @@ export default {
       },
       exec: function (env, args, request) {
         var range = that.editor.getSelection().getRange()
-        var selectedText = that.session.getTextRange(range)
+        var selectedText = that.tabs[that.currentTab].session.getTextRange(range)
 
         var liveExec = {}
 
@@ -165,14 +140,14 @@ export default {
           var cursorPosition = that.editor.getCursorPosition()
           var numLine = cursorPosition['row']
           liveExec.numLine = numLine
-          liveExec.text = that.session.getDocument().$lines[liveExec.numLine]
+          liveExec.text = that.sessions[that.currentTab].getDocument().$lines[liveExec.numLine]
           liveExec.range = new that.Range(liveExec.numLine, 0, liveExec.numLine, liveExec.text.length)
         }
 
         // highlight text
-        var marker = that.session.addMarker(liveExec.range, 'execute_code_highlight', 'line', true)
+        var marker = that.sessions[that.currentTab].addMarker(liveExec.range, 'execute_code_highlight', 'line', true)
         setTimeout(function () {
-          that.session.removeMarker(marker)
+          that.sessions[that.currentTab].removeMarker(marker)
         }, 500)
 
         console.log(liveExec)
@@ -184,16 +159,15 @@ export default {
   created () {
     Store.on('project_loaded', this.load_project)
     Store.on('file_loaded', this.load_file)
-    Store.on('toggle', this.toggle_section)
     Store.emit('project_list_all')
     Store.on('device', this.device_update)
     Store.on('project_created', this.project_created)
+    Store.on('project_saved', this.project_saved)
   },
   destroyed () {
     console.log('editor destroyed')
     Store.remove_listener('project_loaded', this.load_project)
     Store.remove_listener('file_loaded', this.load_file)
-    Store.remove_listener('toggle', this.toggle_section)
     Store.remove_listener('device', this.device_update)
     Store.remove_listener('project_created', this.project_created)
 
@@ -234,37 +208,62 @@ export default {
         for (var i in files) {
           if (files[i].name === 'main.js') {
             Store.clearArray(this.tabs)
-            var f = files[i]
-            f.session = ace.createEditSession(f.code, 'ace/mode/javascript')
-            this.tabs.push(f)
-            this.editor.session.setValue(files[i].code)
+            this.load_file(files[i])
           }
         }
       } else { // project couldnt be loaded
         this.isError = true
       }
     },
+    createSession: function (f) {
+      var session = ace.createEditSession(f.code, 'ace/mode/javascript')
+
+      session.setMode('ace/mode/javascript')
+      session.setUseSoftTabs(true)
+      session.setTabSize(2)
+
+      return session
+    },
     load_file: function (f) {
       // check if opened
-      f.session = ace.createEditSession(f.code, 'ace/mode/javascript')
-      this.tabs.push(f)
+      var tabPos = this.file_is_in_tabs(f)
+      if (tabPos === -1) {
+        console.log('loading new')
+        var session = this.createSession(f)
+        session.setValue(f.code)
 
+        f = Object.assign({}, f, { modified: false })
+        this.tabs.push(f)
+        this.sessions.push(session)
+
+        session.on('change', function (e) {
+          // update code
+          f.code = session.getValue()
+          f.modified = true
+          console.log('modified')
+        })
+
+        this.select_tab(this.tabs.length - 1)
+      } else {
+        console.log('already exist')
+        this.select_tab(tabPos)
+      }
       // console.log('load file ' + f.name + ' ' + f.code)
     },
-    toggle_section: function (what) {
-      // if toggle the given panel, the rest off
-      for (var k in this.panel_visibility) {
-        if (k === what) this.panel_visibility[k] = !this.panel_visibility[k]
-        else this.panel_visibility[k] = false
+    file_is_in_tabs: function (f) {
+      for (var i = 0; i < this.tabs.length; i++) {
+        if (f.path === this.tabs[i].path) return i
       }
+      return -1
     },
     add_tab: function () {
       this.tabs.push({name: 'qq', text: 'lala'})
     },
     select_tab: function (index) {
+      console.log('qq ' + index)
       this.currentTab = index
       // this.editor.session.setValue(this.tabs[index].code)
-      this.editor.setSession(this.tabs[index].session)
+      this.editor.setSession(this.sessions[index])
     },
     device_update: function (data) {
       if (data['running script'] === 'none') {
@@ -277,8 +276,12 @@ export default {
     },
     project_created (status, data) {
       if (status) {
-        this.panel_visibility.new_project = false
         this.$route.router.go({name: 'editor.load', params: { type: data.type, folder: data.folder, project: data.name }})
+      }
+    },
+    project_saved () {
+      for (var k in this.tabs) {
+        this.tabs[k].modified = false
       }
     }
 
@@ -334,6 +337,7 @@ export default {
 
     p {
       padding: 10px 22px;
+      margin: 5px;
       background: rgba(0, 0, 0, 0.8);
       border-radius: 58px;
       color: @primaryAccent;
@@ -348,7 +352,7 @@ export default {
       text-transform: uppercase;
       font-size: 0.9em;
       background: none;
-      
+
       &:hover {
         text-decoration: underline;
       }
@@ -370,11 +374,16 @@ export default {
       color: black;
 
       li {
+        position: relative;
         display: inline-block;
         padding: 12px 20px;
         cursor: pointer;
         .anim-fast;
         border-bottom: 4px solid @transparent;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        max-width: 100px;
+        white-space: nowrap;
 
         &.active {
            border-bottom: 4px solid @primaryAccent;
@@ -390,6 +399,10 @@ export default {
           margin-bottom: 0px;
           border-radius: 2px 2px 0px 0px;
           border: 0px;
+        }
+
+        &.isModified {
+          border-color: orange;
         }
       }
     }

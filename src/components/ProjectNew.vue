@@ -3,12 +3,15 @@
   <div class = "editor_panel main_shadow" id="editor_panel_new">
     <div class = "left">
       <div class = "form">
+
         <!-- info input -->
+        <!--
         <label for="choosefolder">choose a folder</label>
         <select id="choosefolder" name="choosefolder" class="form-control">
           <option value="1">Option one</option>
           <option value="2">Option two</option>
         </select>
+        -->
 
         <label for="projectname">project name</label>
         <input id="projectname" name="projectname" type="text" placeholder="Write here the project name" class="form-control input-md" v-model = "projectName" required="">
@@ -21,10 +24,12 @@
       </div>
     </div>
 
+    <!--
     <div class="right">
       <p>Create a new project</p>
       <p>{{status}}</p>
     </div>
+    -->
   </div>
 
 </template>
@@ -61,7 +66,11 @@ export default {
 @import "../assets/css/variables.less";
 
 #editor_panel_new {
-  height: 250px;
+  height: 150px;
+
+  .left {
+    flex: 1;
+  }
 
   label {
     font-size: 1em;

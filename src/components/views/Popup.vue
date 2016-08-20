@@ -20,11 +20,12 @@ export default {
   },
   computed: {
     arrowposition: function () {
+      // 95 y 308
       console.log('popup: ' + this.posx + ' ' + this.posy)
       console.log('popup2: ' + 'top: ' + this.posy + '; left: ' + this.posx + ';')
 
-      if (this.arrow === 'left') return 'top: 260px; left: ' + this.posx + ';'
-      else return 'top: ' + this.posy + '; right: ' + this.posx + ';'
+      if (this.arrow === 'left') return 'top: 320px; left: ' + this.posx + ';'
+      else return 'top: ' + this.posy + '; left: -320px;'
     }
   },
   methods: {
@@ -46,7 +47,7 @@ export default {
   border-radius: 3px;
   z-index: 3;
   border: 0px solid black;
-  padding: 10px;
+  padding: 5px;
   opacity: 1;
   filter: drop-shadow(0 0 1px rgba(0,0,0,0.4)) drop-shadow(0 3px 4px rgba(0,0,0,0.4));
   text-align: left;
@@ -56,6 +57,7 @@ export default {
   }
 
   ul {
+    padding: 5px;
     .key {
       font-weight: 800
     }

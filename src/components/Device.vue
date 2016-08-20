@@ -10,7 +10,7 @@
 
     <popup v-if = "showpopover" arrow = "left" :posx = "posx" :posy = "posy">
       <ul>
-        <li v-for = "prop in device_properties">
+        <li v-for = "prop in device_properties | orderBy '$key'">
           <span class = "key">{{ $key }} :</span> {{ prop }}
         </li>
       </ul>

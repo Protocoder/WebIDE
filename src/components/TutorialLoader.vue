@@ -2,7 +2,7 @@
   <div id = "tutorial" class = "proto_panel">
     <div class = "actionbar">
       <div class = "tutorial_chooser">
-        <a v-for="t in tutorial_files" v-link="{ name: 'tutorial', params: { id: t.id }, activeClass: 'selected' }">Tutorial {{t.id}}</a>
+        <a v-for="t in tutorial_files" v-on:click="fetchTutorial(t.id)" activeClass: 'selected'>Tutorial {{t.id}}</a>
       </div>
     </div>
     <div class = "content">

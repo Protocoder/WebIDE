@@ -1,82 +1,58 @@
 <template>
   <div id = "file_manager"
     class = "proto_panel"
-    :class = "{'hovered': hovering}"
-    @dragstart = "handleDragStart"
-    @dragenter = "handleDragEnter"
-    @dragleave = "handleDragLeave"
-    @dragover.prevent = "handleDragOver"
-    @dragend = "handleDragEnd"
-    @drop = "handleDrop"
     >
-    <div class = "actionbar">
-      <h1>Files {{hovering}} {{dndState}}</h1>
-      <p>{{current_folder}}</p>
-      <ul>
-        <li class="fa fa-folder" for = "get_file"> <input id = "get_file" type = "file" @change = "onFileChange" multiple = ""> </li>
-        <li class="fa fa-upload" for = "get_file"> <input id = "get_file" type = "file" @change = "onFileChange" multiple = ""> </li>
-      </ul>
-
-      <!--
-      <div id = "drag_overlay"><i class = "fa fa-download fa-5x"></i></div>
-
-      <div>
-        <form id="upload" action="index.html" method="POST" enctype="multipart/form-data">
-        <fieldset>
-          <legend>HTML File Upload</legend>
-          <input type="hidden" id="MAX_FILE_SIZE" name="MAX_FILE_SIZE" value="300000" />
-          <div>
-            <label for="fileselect">Files to upload:</label>
-            <input type="file" id="fileselect" name="fileselect[]" multiple="multiple" />
-            <div id="filedrag">or drop files here</div>
-          </div>
-          <div id="submitbutton">
-            <button type="submit">Upload Files</button>
-          </div>
-        </fieldset>
-        </form>
+      <div class = "wrapper">
+      <div class = "actionbar">
+        <h1>Files</h1>
+        <p>{{current_folder}}</p>
+        <ul>
+          <!-- <li class="fa fa-folder" for = "get_file"></li> -->
+          <li class="fa fa-upload" for = "get_file" v-on:click = "show_upload_dialog"></li>
+        </ul>
+        <div id = "upload_container" v-bind:class = "{'show' : isDnd, 'todrop': isReadyToDrop }">
+          <p>Drop the files here</p>
+          <input id = "upload" type = "file" _change = "onFileChange" multiple = "">
+        </div>
       </div>
-      -->
+      <div class = "content">
+        <table>
+          <thead>
+            <tr>
+              <th> type </type>
+              <th> name </th>
+              <th> size </th>
+              <th> action </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id = "back" v-on:click = "change_dir('..')">
+              <td><i class = "fa fa-folder-o"></i></td>
+              <td> .. </td>
+              <td> </td>
+              <td> </td>
+            </tr>
+            <tr id = "files" v-bind:class="{ 'selected': selected == $index }" v-for = "file in files" v-on:click = "showcontent($index, $event)">
+              <td> {{{file.type | fa_icon}}} </td>
+              <td> {{file.name}} </td>
+              <td> {{file.size}} </td>
+              <td> Q </td>
+            </tr>
+          </tbody>
+        </table>
 
+      </div>
+      <div id = "uploading" v-show = "showUploadingFiles">
+        <h1> uploading... </h1>
+        <ul>
+          <li v-for = "u in uploadingFiles" v-show = "u.uploading">
+            {{u.data.name}} {{u.uploading}}
+            <div class = "progress pre"></div>
+            <div class = "progress"></div>
+          </li>
+        </ul>
+      </div>
     </div>
-    <div class = "content">
-      <table>
-        <thead>
-          <tr>
-            <th> type </type>
-            <th> name </th>
-            <th> size </th>
-            <th> action </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr id = "back" v-on:click = "change_dir('..')">
-            <td><i class = "fa fa-folder-o"></i></td>
-            <td> .. </td>
-            <td> </td>
-            <td> </td>
-          </tr>
-          <tr id = "files" v-bind:class="{ 'selected': selected == $index }" v-for = "file in files" v-on:click = "showcontent($index, $event)">
-            <td> {{{file.type | fa_icon}}} </td>
-            <td> {{file.name}} </td>
-            <td> {{file.size}} </td>
-            <td> Q </td>
-          </tr>
-        </tbody>
-      </table>
-
-    </div>
-    <div id = "uploading" v-show = "showUploadingFiles">
-      <h1> uploading... </h1>
-      <ul>
-        <li v-for = "u in uploadingFiles" v-show = "u.uploading">
-          {{u.data.name}} {{u.uploading}}
-          <div class = "progress pre"></div>
-          <div class = "progress"></div>
-        </li>
-      </ul>
-    </div>
-
     <popup arrow = "right" :posx = "posx" :posy = "posy" v-if = "showpopover">
     {{{popup_content}}}
     </popup>
@@ -101,7 +77,6 @@ export default {
       popup_content: '',
       current_folder: '',
       project_name: '',
-      hovering: false,
       files: [
         /*
         { type: 'folder-o', name: 'qq1.png', size: '25kb' },
@@ -109,46 +84,43 @@ export default {
         { type: 'folder-o', name: 'qq3.png', size: '25kb' },
         { type: 'folder-o', name: 'qq4.png', size: '25kb' },
         { type: 'folder-o', name: 'qq5.png', size: '25kb' },
-        { type: 'file-o', name: 'qq.png', size: '25kb' },
-        { type: 'file-o', name: 'qq.png', size: '25kb' },
-        { type: 'file-o', name: 'qq.png', size: '25kb' },
-        { type: 'file-o', name: 'qq.png', size: '25kb' },
-        { type: 'file-o', name: 'qqm.png', size: '25kb' },
-        { type: 'file-o', name: 'qqmm.png', size: '25kb' }
         */
       ],
       uploadingFiles: [
       ],
       showUploadingFiles: false,
+      isDnd: false,
+      isReadyToDrop: false,
       dndState: 'none',
       posx: 0,
-      posy: 0
+      posy: 0,
+      input: null
     }
   },
   methods: {
     showcontent: function (i, e) {
       var selected_file = this.files[i]
 
+      // change directories
       if (selected_file.isDir) {
-        // we can change dir
         this.change_dir(selected_file.path)
-      } else {
-        if (selected_file.name.endsWith('.png') ||
-            selected_file.name.endsWith('.jpg') ||
-            selected_file.name.endsWith('.jpeg')) {
-          // we check if we preview or open in editor
-          this.posx = e.clientX + 'px'
-          this.posy = e.clientY + 'px'
-          console.log('pos', this.posx, this.posy)
-          this.selected = i
-          var url = Store.get_url_for_current_project() + 'files/load/' + selected_file.name
-          this.popup_content = '<img src=' + url + '/>'
-          // console.log(url)
-          this.showpopover = !this.showpopover
-        } else if (selected_file.name.endsWith('.js')) {
-          console.log('selected js ' + selected_file.name)
-          Store.load_file(selected_file)
-        }
+      // preview file
+      } else if (selected_file.name.toLowerCase().endsWith('.png') ||
+            selected_file.name.toLowerCase().endsWith('.jpg') ||
+            selected_file.name.toLowerCase().endsWith('.jpeg')) {
+        // we check if we preview or open in editor
+        // console.log(e)
+        this.posx = e.clientX - 300 + 'px'
+        this.posy = e.target.offsetTop + 22 + 'px'
+        this.selected = i
+        var url = Store.get_url_for_current_project() + 'files/load/' + selected_file.name
+        this.popup_content = '<img src=' + url + '/>'
+        // console.log(url)
+        this.showpopover = !this.showpopover
+      // try to open file
+      } else { // if (selected_file.name.endsWith('.js')) {
+        console.log('opening file ' + selected_file.name)
+        Store.load_file(selected_file)
       }
     },
     away: function () {
@@ -174,87 +146,123 @@ export default {
       console.log('changing dir ' + path)
       Store.list_files_in_path(path)
     },
-
+    show_upload_dialog: function (e) {
+      this.input.click()
+    },
     /* file upload */
     onFileChange: function (e) {
-      console.log('----------------- onFileChange')
       this.showUploadingFiles = true
       var files = e.target.files || e.dataTransfer.files
       // console.log(this.uploadingFiles)
 
+      // clean uploading files
+      // Store.clearArray(this.uploadingFiles)
+
+      // send
       for (var i = 0; i < files.length; i++) {
         // console.log(files[i].name + ' ' + files[i].size + ' ' + files[i].type)
         this.uploadingFiles.push({data: files[i], uploading: true})
         Store.upload_file(this.uploadingFiles[i])
       }
-      console.log(this.uploadingFiles)
-
       // if (!files.length) return
       // this.createImage(files[0])
     },
     file_uploaded: function (name) {
-      console.log('------------------ file_uploaded')
       var uploading = false
 
       for (var i = 0; i < this.uploadingFiles.length; i++) {
         if (this.uploadingFiles[i].data.name === name) {
-          console.log(name + ' is uploaded')
+          // console.log(name + ' is uploaded')
           // console.log(this.uploadingFiles)
           // console.log(typeof (this.uploadingFiles))
           this.uploadingFiles[i].uploading = false
         }
         uploading = uploading || this.uploadingFiles[i].uploading
-        console.log(this.uploadingFiles[i].uploading)
+        // console.log(this.uploadingFiles[i].uploading)
+        this.uploadingFiles.splice(i, 1) // remove item
       }
 
-      console.log(this.uploadingFiles)
+      // console.log(this.uploadingFiles)
       if (!uploading) {
         this.showUploadingFiles = false
         Store.list_files_in_path('')
       }
-    },
-    createImage: function (file) {
-      // var image = new Image()
-      var reader = new window.FileReader()
-      reader.onload = (e) => {
-        var image = e.target.result
-        console.log(image)
-      }
-      reader.readAsDataURL(file)
-    },
-    handleDragStart: function () {
-      this.dndState = 'dragStart'
-    },
-    handleDragEnter: function () {
-      this.dndState = 'dragEnter'
-      this.hovering = true
-    },
-    handleDragLeave: function () {
-      this.dndState = 'dragLeave'
-      this.hovering = false
-    },
-    handleDragOver: function () {
-      this.dndState = 'dragOver'
-      this.hovering = true
-    },
-    handleDragEnd: function () {
-      this.dndState = 'dragEnd'
-    },
-    handleDrop: function () {
-      this.dndState = 'drop'
-      this.hovering = false
     }
   },
   ready () {
-    console.log('ready')
+    // console.log('ready')
     Store.on('project_files', this.list_files)
     Store.on('file_uploaded', this.file_uploaded)
+
+    var that = this
+    var firstTarget
+
+    this.$el.ondrop = function (e) {
+      // upload
+      that.showUploadingFiles = true
+
+      that.onFileChange(e)
+      that.isDnd = false
+      that.isReadyToDrop = false
+      e.preventDefault()
+    }
+
+    document.addEventListener('dragenter', function (e) {
+      firstTarget = e.target
+      // console.log('dragenter ', e)
+      that.isDnd = true
+      // e.stopPropagation()
+      e.preventDefault()
+    })
+
+    document.addEventListener('dragover', function (e) {
+      e.target.effectAllowed = true
+    })
+
+    document.addEventListener('dragover', function (e) {
+      // console.log('dragover')
+      // console.log('dragover -->' + e.target.id)
+      if (e.target.id === 'upload') {
+        // console.log('yeah!')
+        e.dataTransfer.dropEffect = 'copy'
+        that.isReadyToDrop = true
+        that.showUploadingFiles = true
+      }
+      // e.stopPropagation()
+      e.preventDefault()
+    }, false)
+
+    document.addEventListener('dragleave', function (e) {
+      if (firstTarget === e.target) {
+        // console.log('dragleave')
+        that.isDnd = false
+        that.isReadyToDrop = false
+        // e.stopPropagation()
+        e.preventDefault()
+      } else if (e.target.id === 'upload') {
+        that.isReadyToDrop = false
+      }
+    })
+
+    document.addEventListener('dragcancel', function (e) {
+      if (firstTarget === e.target) {
+        // console.log('dragcancel')
+        that.isDnd = false
+        that.isReadyToDrop = false
+        e.stopPropagation()
+        e.preventDefault()
+      }
+    })
+
+    this.input = this.$el.querySelector('#upload')
   },
   created () {
 
   },
   destroyed () {
-
+    document.removeEventListener('dragover')
+    document.removeEventListener('dragleave')
+    document.removeEventListener('dragcancel')
   }
 }
 </script>
@@ -278,18 +286,43 @@ export default {
     }
   }
 
-  input {
-    display: block;;
+  #upload_container {
+    display: none;
+    background: fadeout(@primaryAccent, 20%);
     position: absolute;
-    cursor: pointer;
     top: 0px;
     right: 0;
     bottom: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    opacity: 0;
-    display: none;
+
+    &.show {
+      display: flex;
+      align-items: center;
+      font-size: 2em;
+    }
+
+    &.todrop {
+      background: red;
+    }
+
+    p {
+      text-align: center;
+      width: 100%;
+    }
+
+    input {
+      cursor: pointer;
+      position: absolute;
+      top: 0px;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+    }
   }
 
   table {
@@ -315,8 +348,9 @@ export default {
     }
 
     tbody {
+      font-size: 0.8em;
       td {
-        padding:5px;
+        padding:0.5em;
       }
 
       tr {
@@ -371,7 +405,7 @@ export default {
       position: absolute;
       background: #ffeb00;
       height: 2px;
-      width: 25%;
+      width: 100%;
       border-radius: 2px;
       margin-top: 3px;
     }

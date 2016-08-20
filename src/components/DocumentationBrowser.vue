@@ -1,29 +1,30 @@
 <template>
-  <div class = "documentation" v-bind:style = "">
+  <div class = "main_shadow documentation" v-bind:style = "">
     <div class = "header">
       <h1 class = "title">Documentation</h1>
-      <input/>
+      <input type = "text" v-model = "search" placeholder="search" />
     </div>
 
     <div class = "content">
       <div id = "browser">
-        <div v-for = "object in documentation" class = "object">
+        <div v-for = "object in documentation | orderBy 'name'" class = "object">
           <h3>{{object.name}}</h3>
           <ul>
-            <li v-for = "m in object.methods"><p>{{m.name}}</p></li>
+            <li v-for = "f in object.fields | orderBy 'name' | filterBy search in 'name'"><p>{{f.name}}</p></li>
+          <ul>
+            <li v-for = "m in object.methods | orderBy 'name' | filterBy search in 'name'"><p v-on:click = "select_method(m)">{{m.name}}()</p></li>
           </ul>
         </div>
-
       </div>
 
-      <documentation-card></documentation-card>
+      <documentation-card :data = "selected"></documentation-card>
     </div>
 
   </div>
 </template>
 
 <script>
-import Store from '../../Store'
+import Store from '../Store'
 import DocumentationCard from './DocumentationCard'
 
 export default {
@@ -32,12 +33,12 @@ export default {
   },
   name: 'DocumentationBrowser',
   props: {
-    arrow: String,
-    posy: Number,
     documentation: ''
   },
   data () {
     return {
+      selected: '',
+      search: ''
     }
   },
   computed: {
@@ -48,6 +49,10 @@ export default {
     load_documentation: function (doc) {
       console.log('loaded')
       this.documentation = Store.state.documentation
+    },
+    select_method: function (method) {
+      console.log(method)
+      this.selected = method
     }
   },
   created () {
@@ -58,19 +63,24 @@ export default {
 </script>
 
 <style lang = "less">
-@import "../../assets/css/variables.less";
+@import "../assets/css/variables.less";
 
 .documentation {
   background: white;
   color: black;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 0px;
   height: 500px;
+  z-index: 1;
 
   & > div {
     padding: 10px;
   }
 
   h1 {
-    font-size: 1.5em;
+    font-size: 1.1em;
     text-transform: uppercase;
     color: #555;
     font-weight: 700;
@@ -84,15 +94,18 @@ export default {
   h3 {
     font-weight: 600;
     font-size: 1.2em;
+    padding: 3px;
+    padding-bottom: 5px;
   }
 
   .header {
     display: flex;
     border-bottom: 1px solid #ddd;
     background: #ddd;
+    align-items: center;
 
     .title {
-      width: 70%;
+      width: 100%;
     }
 
     input {
@@ -112,6 +125,10 @@ export default {
     #browser {
       width: 60%;
       overflow-y: scroll;
+      column-count: auto;
+      column-width: 120px;
+      column-span: all;
+      column-gap: 10px;
 
       .object {
         display: inline-block;
@@ -119,18 +136,17 @@ export default {
         vertical-align: top;
 
         li {
-          padding: 2px 0px;
           color: #333;
           font-weight: 300;
-          cursor: default;
 
           p {
-            border-bottom: 1px solid transparent;
+            cursor: pointer;
+            padding: 3px;
             display: inline-block;
           }
 
           p:hover {
-            border-color: @primaryAccent;
+            background: @primaryAccent;
           }
         }
       }

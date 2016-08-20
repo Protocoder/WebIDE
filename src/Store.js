@@ -142,20 +142,18 @@ store.project_create = function (projectName) {
  */
 store.project_save = function (files) {
   console.log('project saving')
-  // var project = this.state
 
-  var query = Object.assign({}, store.state.current_project)
-
-  query.files = files
-  console.log(query)
-
-  // vm.$log()
+  var query = {}
+  query.project = Object.assign({}, store.state.current_project.project)
+  query.project.files = null
+  query.files = []
+  query.files = Object.assign([], files)
 
   Vue.http.post(get_url_webapp('/api/project' + this.get_current_project() + '/save'), query).then(function (response) {
-    // console.log(TAG + ': project_save(status) > ' + response.status)
-    // store.emit('project_saved')
+    console.log('project_save(status) OK > ' + response.status)
+    store.emit('project_saved')
   }, function (response) {
-    // console.log(TAG + ': project_save(status) > ' + response.status)
+    console.log('project_save(status) NOP > ' + response.status)
   })
 }
 
