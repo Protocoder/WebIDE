@@ -4,7 +4,7 @@ const store = new EventEmitter()
 export default store
 
 // var TAG = 'store'
-var DEBUG = true
+var DEBUG = false
 
 // constants
 var WEBAPP_PORT = 8585
