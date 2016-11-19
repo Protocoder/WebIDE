@@ -9,7 +9,8 @@ module.exports = {
   'globals': {
     "ace": true,
     "WebSocket": true,
-    "FormData": true
+    "FormData": true,
+    "localStorage": true
   },
   // add your custom rules here
   'rules': {

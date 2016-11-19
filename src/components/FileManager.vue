@@ -5,14 +5,26 @@
       <div class = "wrapper">
       <div class = "actionbar">
         <h1>Files</h1>
-        <p>{{current_folder}}</p>
+        <input class = "path" v-model = "current_folder" />
         <ul>
           <!-- <li class="fa fa-folder" for = "get_file"></li> -->
+          <li class="fa fa-plus" v-on:click = "show_create_file_dialog"></li>
           <li class="fa fa-upload" for = "get_file" v-on:click = "show_upload_dialog"></li>
         </ul>
         <div id = "upload_container" v-bind:class = "{'show' : isDnd, 'todrop': isReadyToDrop }">
           <p>Drop the files here</p>
-          <input id = "upload" type = "file" _change = "onFileChange" multiple = "">
+          <input id = "upload" type = "file" @change = "onFileChange" multiple = "">
+        </div>
+      </div>
+      <div v-show = "showCreateDialog" class = "new_file">
+        <select v-model = "new_file.type">
+          <option value = "file">New file</option>
+          <option value = "folder">New folder</folder>
+        </select>
+        <input id = "new_file" type = "text" placeholder="filename.js" v-model = "new_file.name"/>
+        <div class = "button_group">
+          <button class = "left" v-on:click = "create_file"><i class = "fa fa-check"></i></button>
+          <button class = "right" v-on:click = "show_create_file_dialog"><i class = "fa fa-times"></i></button>
         </div>
       </div>
       <div class = "content">
@@ -22,7 +34,7 @@
               <th> type </type>
               <th> name </th>
               <th> size </th>
-              <th> action </th>
+              <th class = "action"></th>
             </tr>
           </thead>
           <tbody>
@@ -32,11 +44,11 @@
               <td> </td>
               <td> </td>
             </tr>
-            <tr id = "files" v-bind:class="{ 'selected': selected == $index }" v-for = "file in files" v-on:click = "showcontent($index, $event)">
-              <td> {{{file.type | fa_icon}}} </td>
+            <tr id = "files" v-bind:class="{ 'selected': selected == index }" v-for = "(file, index) in files" v-on:click = "showcontent(index, $event)">
+              <td><i class = "fa" v-bind:class = "get_icon(file)"></i></td>
               <td> {{file.name}} </td>
               <td> {{file.size}} </td>
-              <td> Q </td>
+              <td class = "action"><i class = "fa fa-ellipsis-v"></i></td>
             </tr>
           </tbody>
         </table>
@@ -54,24 +66,40 @@
       </div>
     </div>
     <popup arrow = "right" :posx = "posx" :posy = "posy" v-if = "showpopover">
-    {{{popup_content}}}
+      <p v-html = "popup_content"></p>
+      <audio-player v-show = "showAudioPlayer" v-bind:src = "url"></audio-player>
+      <video-player v-show = "showVideoPlayer" src = "/static/cityfireflies.m4v"></video-player>
+
+      <div class = "file_info">
+        <input type = "text" v-model = "url" />
+        <a v-bind:href = "url" download><i class = "fa fa-download"></i></a>
+      </div>
+      <!--
+      <video-player src = "https://www.youtube.com/embed/BC2dRkm8ATU"></video-player>
+      <video-player src = "http://player.vimeo.com/video/25071870"></video-player>
+    -->
     </popup>
   </div>
 </template>
 
 <script>
-import Store from '../Store'
+import store from '../Store'
 import Popup from './views/Popup'
+import VideoPlayer from './views/VideoPlayer'
+import AudioPlayer from './views/AudioPlayer'
 
 export default {
   name: 'FileManager',
   components: {
-    Store,
-    Popup
+    Popup,
+    VideoPlayer,
+    AudioPlayer
   },
   data () {
     return {
       showpopover: false,
+      showAudioPlayer: false,
+      showVideoPlayer: false,
       qq: true,
       selected: -1,
       popup_content: '',
@@ -94,12 +122,98 @@ export default {
       dndState: 'none',
       posx: 0,
       posy: 0,
-      input: null
+      input: null,
+      showCreateDialog: false,
+      new_file: {
+        type: 'file',
+        name: ''
+      }
     }
   },
+  computed: {
+
+  },
   methods: {
+    init_filemanager: function () {
+      // console.log('ready')
+      store.on('project_files', this.list_files)
+      store.on('file_uploaded', this.file_uploaded)
+
+      var that = this
+      var firstTarget
+
+      this.$el.ondrop = function (e) {
+        // upload
+        that.showUploadingFiles = true
+
+        that.onFileChange(e)
+        that.isDnd = false
+        that.isReadyToDrop = false
+        e.preventDefault()
+      }
+
+      document.addEventListener('dragenter', function (e) {
+        firstTarget = e.target
+        // console.log('dragenter ', e)
+        that.isDnd = true
+        // e.stopPropagation()
+        e.preventDefault()
+      })
+
+      document.addEventListener('dragover', function (e) {
+        e.target.effectAllowed = true
+      })
+
+      document.addEventListener('dragover', function (e) {
+        // console.log('dragover')
+        // console.log('dragover -->' + e.target.id)
+        if (e.target.id === 'upload') {
+          // console.log('yeah!')
+          e.dataTransfer.dropEffect = 'copy'
+          that.isReadyToDrop = true
+          that.showUploadingFiles = true
+        }
+        // e.stopPropagation()
+        e.preventDefault()
+      }, false)
+
+      document.addEventListener('dragleave', function (e) {
+        if (firstTarget === e.target) {
+          // console.log('dragleave')
+          that.isDnd = false
+          that.isReadyToDrop = false
+          // e.stopPropagation()
+          e.preventDefault()
+        } else if (e.target.id === 'upload') {
+          that.isReadyToDrop = false
+        }
+      })
+
+      document.addEventListener('dragcancel', function (e) {
+        if (firstTarget === e.target) {
+          // console.log('dragcancel')
+          that.isDnd = false
+          that.isReadyToDrop = false
+          e.stopPropagation()
+          e.preventDefault()
+        }
+      })
+
+      this.input = this.$el.querySelector('#upload')
+    },
+    playersOff: function () {
+      this.showAudioPlayer = false
+      this.showVideoPlayer = false
+      this.popup_content = ''
+    },
     showcontent: function (i, e) {
+      console.log('showing content')
       var selected_file = this.files[i]
+      this.url = store.get_url_for_current_project() + 'files/view/' + selected_file.name
+      this.posx = e.clientX - 300 + 'px'
+      this.posy = e.clientY - 98 + 'px' // target.offsetTop + 22 + 'px'
+
+      this.playersOff()
 
       // change directories
       if (selected_file.isDir) {
@@ -108,31 +222,44 @@ export default {
       } else if (selected_file.name.toLowerCase().endsWith('.png') ||
             selected_file.name.toLowerCase().endsWith('.jpg') ||
             selected_file.name.toLowerCase().endsWith('.jpeg')) {
-        // we check if we preview or open in editor
-        // console.log(e)
-        this.posx = e.clientX - 300 + 'px'
-        this.posy = e.target.offsetTop + 22 + 'px'
+        console.log(e)
         this.selected = i
-        var url = Store.get_url_for_current_project() + 'files/load/' + selected_file.name
-        this.popup_content = '<img src=' + url + '/>'
-        // console.log(url)
+        this.popup_content = '<img src=' + this.url + '/>'
+        this.showpopover = !this.showpopover
+      } else if (selected_file.name.toLowerCase().endsWith('.mp3') ||
+            selected_file.name.toLowerCase().endsWith('.ogg') ||
+            selected_file.name.toLowerCase().endsWith('.wav')) {
+        this.selected = i
+        this.showAudioPlayer = true
         this.showpopover = !this.showpopover
       // try to open file
+      } else if (selected_file.name.toLowerCase().endsWith('.mp4') ||
+          selected_file.name.toLowerCase().endsWith('.m4v') ||
+          selected_file.name.toLowerCase().endsWith('.mpeg') ||
+          selected_file.name.toLowerCase().endsWith('.mpg') ||
+          selected_file.name.toLowerCase().endsWith('.avi') ||
+          selected_file.name.toLowerCase().endsWith('.ogv')) {
+        this.selected = i
+        this.showpopover = !this.showpopover
+        this.showVideoPlayer = true
       } else { // if (selected_file.name.endsWith('.js')) {
         console.log('opening file ' + selected_file.name)
-        Store.load_file(selected_file)
+        store.load_file(selected_file)
       }
     },
-    away: function () {
-      console.log('you clicked away')
+    clickedOutside: function () {
+      console.log('click')
       this.showpopover = false
+      this.showAudioPlayer = false
+      this.showVideoPlayer = false
+      this.popup_content = ''
     },
     list_files: function () {
       // update object
-      this.current_folder = Store.state.current_project.current_folder
-      var files = Store.state.current_project.files
-      this.project_name = Store.state.current_project.project.name
-      Store.clearArray(this.files)
+      this.current_folder = store.state.current_project.current_folder
+      var files = store.state.current_project.files
+      this.project_name = store.state.current_project.project.name
+      store.clearArray(this.files)
 
       files.sort(function (a, b) {
         return (b.isDir - a.isDir) || (a.name.toString().localeCompare(b.name))
@@ -144,25 +271,27 @@ export default {
     },
     change_dir: function (path) {
       console.log('changing dir ' + path)
-      Store.list_files_in_path(path)
+      store.list_files_in_path(path)
     },
     show_upload_dialog: function (e) {
+      console.log('show')
       this.input.click()
     },
     /* file upload */
     onFileChange: function (e) {
+      console.log('onFileChange')
+
       this.showUploadingFiles = true
       var files = e.target.files || e.dataTransfer.files
-      // console.log(this.uploadingFiles)
 
       // clean uploading files
-      // Store.clearArray(this.uploadingFiles)
+      // store.clearArray(this.uploadingFiles)
 
       // send
       for (var i = 0; i < files.length; i++) {
         // console.log(files[i].name + ' ' + files[i].size + ' ' + files[i].type)
         this.uploadingFiles.push({data: files[i], uploading: true})
-        Store.upload_file(this.uploadingFiles[i])
+        store.upload_file(this.uploadingFiles[i])
       }
       // if (!files.length) return
       // this.createImage(files[0])
@@ -185,76 +314,27 @@ export default {
       // console.log(this.uploadingFiles)
       if (!uploading) {
         this.showUploadingFiles = false
-        Store.list_files_in_path('')
+        store.list_files_in_path('')
       }
+    },
+    show_create_file_dialog: function () {
+      this.showCreateDialog = !this.showCreateDialog
+    },
+    create_file: function () {
+      if (this.new_file.type !== null && this.new_file.name !== null) {
+        console.log(this.new_file.type, this.new_file.name)
+        store.create_file(this.new_file.type, this.new_file.name)
+        this.show_create_file_dialog()
+      }
+    },
+    get_icon: function (o) {
+      return 'fa-' + o.type + '-o'
     }
   },
-  ready () {
-    // console.log('ready')
-    Store.on('project_files', this.list_files)
-    Store.on('file_uploaded', this.file_uploaded)
-
-    var that = this
-    var firstTarget
-
-    this.$el.ondrop = function (e) {
-      // upload
-      that.showUploadingFiles = true
-
-      that.onFileChange(e)
-      that.isDnd = false
-      that.isReadyToDrop = false
-      e.preventDefault()
-    }
-
-    document.addEventListener('dragenter', function (e) {
-      firstTarget = e.target
-      // console.log('dragenter ', e)
-      that.isDnd = true
-      // e.stopPropagation()
-      e.preventDefault()
+  mounted () {
+    this.$nextTick(function () {
+      this.init_filemanager()
     })
-
-    document.addEventListener('dragover', function (e) {
-      e.target.effectAllowed = true
-    })
-
-    document.addEventListener('dragover', function (e) {
-      // console.log('dragover')
-      // console.log('dragover -->' + e.target.id)
-      if (e.target.id === 'upload') {
-        // console.log('yeah!')
-        e.dataTransfer.dropEffect = 'copy'
-        that.isReadyToDrop = true
-        that.showUploadingFiles = true
-      }
-      // e.stopPropagation()
-      e.preventDefault()
-    }, false)
-
-    document.addEventListener('dragleave', function (e) {
-      if (firstTarget === e.target) {
-        // console.log('dragleave')
-        that.isDnd = false
-        that.isReadyToDrop = false
-        // e.stopPropagation()
-        e.preventDefault()
-      } else if (e.target.id === 'upload') {
-        that.isReadyToDrop = false
-      }
-    })
-
-    document.addEventListener('dragcancel', function (e) {
-      if (firstTarget === e.target) {
-        // console.log('dragcancel')
-        that.isDnd = false
-        that.isReadyToDrop = false
-        e.stopPropagation()
-        e.preventDefault()
-      }
-    })
-
-    this.input = this.$el.querySelector('#upload')
   },
   created () {
 
@@ -276,6 +356,18 @@ export default {
   background: rgba(0, 0, 0, 0.2);
   height: 150px;
   position: relative;
+
+  .path {
+    background: rgba(0, 0, 0, 0.15);
+    outline: none;
+    border: 0px;
+    border-radius: 2px;
+    color: white;
+    flex: 8;
+    margin: 4px 0px;
+    padding: 6px 8px;
+    min-width: 20px;
+  }
 
   &.hovered {
     border: 2px solid red;
@@ -367,6 +459,14 @@ export default {
       tr:nth-child(odd) td {
       }
     }
+
+    .action {
+      opacity: 0.2;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
   }
 
   #uploading {
@@ -415,6 +515,97 @@ export default {
       width: 100%;
     }
 
+  }
+
+  .new_file {
+    display: flex;
+    align-items: center;
+    background: @primaryAccent;
+    padding: 5px;
+
+    & > * {
+      font-family: 'Open Sans Condensed';
+      font-weight: 100;
+      font-size: 0.8em;
+    }
+
+    input {
+      padding: 5px;
+      flex: 1;
+      border: 0px solid transparent;
+      background: rgba(0, 0, 0, 0.2);
+      color: white;
+      min-width: 20px;
+      margin: 0px 2px;
+    }
+
+    select {
+      background: transparent;
+      border: 0px;
+      min-width: 20px;
+    }
+
+    .button_group {
+      padding: 0px;
+      margin: 0px;
+      display: flex;
+
+      button {
+        max-width: 25px;
+        min-width: 25px;
+        margin: 0px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 5px;
+
+        &.left {
+          border-radius: 2px 0px 0px 2px;
+        }
+
+        &.right {
+          border-radius: 0px 2px 2px 0px;
+        }
+      }
+    }
+
+  }
+
+  .file_info {
+    display: flex;
+    flex-direction: row;
+    margin-top: 5px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+    padding: 1px 2px;
+
+    input {
+      background: rgba(0, 0, 0, 0);
+      outline: none;
+      border: 0px;
+      border-right: 1px solid rgba(0, 0, 0, 0.1);;
+      border-radius: 2px;
+      color: black;
+      font-size: 0.9em;
+      -webkit-box-flex: 1;
+      -ms-flex: 1;
+      flex: 1;
+      margin-right: 2px 5px;
+      padding: 2px;
+      font-family: 'Source Code Pro';
+    }
+
+    a {
+      color: black;
+      padding: 5px;
+
+      &:hover {
+        opacity: 0.7;
+      }
+
+      &:active {
+        opacity: 0.4;
+      }
+    }
   }
 }
 

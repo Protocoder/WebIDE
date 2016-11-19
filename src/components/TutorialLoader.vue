@@ -6,7 +6,7 @@
       </div>
     </div>
     <div class = "content">
-      <div v-html = "loaded_tutorial.text | marked"></div>
+      <div v-html = "marked(loaded_tutorial.text)"></div>
     </div>
   </div>
 </template>
@@ -14,7 +14,7 @@
 <script>
 import Marked from 'marked'
 import Highlight from 'highlight.js'
-import 'highlight.js/styles/monokai.css'
+// import 'highlight.js/styles/monokai.css'
 
 Marked.setOptions({
   highlight: function (code, lang) {
@@ -39,6 +39,9 @@ export default {
       }
     }
   },
+  computed: {
+
+  },
   methods: {
     fetchTutorial: function (selected) {
       this.$http({ url: 'static/tutorials/tut' + selected + '.txt', method: 'GET' }).then(function (response) {
@@ -47,8 +50,10 @@ export default {
       }, function (response) {
         // console.log(status)
       })
+    },
+    marked: function (text) {
+      return Marked(text)
     }
-
   },
   route: {
     data () {
@@ -58,7 +63,7 @@ export default {
   },
   created () {
   },
-  ready () {
+  mounted () {
   },
   destroyed () {
   }

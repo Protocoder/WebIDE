@@ -16,8 +16,8 @@
     "predev": "echo --> Starting WEBIDE"
   },
   "dependencies": {
-    "vue": "^1.0.18",
-    "vue-router": "^0.7.13",
+    "vue": "^2.0.1",
+    "vue-router": "^2.0.0",
     "babel-runtime": "^6.0.0"
   },
   "devDependencies": {
@@ -66,9 +66,9 @@
     "sinon": "^1.17.3",
     "sinon-chai": "^2.8.0",
     "url-loader": "^0.5.7",
-    "vue-hot-reload-api": "^1.2.0",
-    "vue-html-loader": "^1.0.0",
-    "vue-loader": "^8.2.1",
+    "vue-hot-reload-api": "^2.0.6",
+    "vue-html-loader": "^1.2.3",
+    "vue-loader": "^9.5.1",
     "vue-style-loader": "^1.0.0",
     "webpack": "^1.12.2",
     "webpack-dev-middleware": "^1.4.0",
@@ -82,6 +82,7 @@
     "less": "^2.3.1",
     "less-loader": "^2.2.2",
     "marked": "^0.3.5",
+    "lodash": "^4.16.3",
     "p5": "0.5.2"
   }
 }

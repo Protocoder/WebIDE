@@ -1,38 +1,30 @@
 <template>
-  <div id = "device_info" v-on:click = "togglepopup">
+  <div id = "device_info" v-show = "device_properties.connected" v-on:click = "togglepopup">
     <p> Connected to </p>
     <div id = "device_frame" v-bind:class = "{ 'rotate' : is_rotated }" >
       <div id = "device_screen"> </div>
     </div>
     <!-- <i class = "fa fa-mobile fa-5x"></i> -->
-    <p> {{ device_properties['model name'] }} </p>
-
+    <p v-if = "ready"> {{ device_properties.info.device['model name'] }} </p>
 
     <popup v-if = "showpopover" arrow = "left" :posx = "posx" :posy = "posy">
       <ul>
-        <li v-for = "prop in device_properties | orderBy '$key'">
-          <span class = "key">{{ $key }} :</span> {{ prop }}
+        <li v-for = "(prop, key1) in device_properties.info">
+          <div class = "title">{{key1}}</div>
+          <ul>
+            <li v-for = "(value, key2) in prop"><span class = "key">{{ key2 }} :</span> {{ value }}</li>
+          </ul>
         </li>
       </ul>
     </popup>
 
   </div>
-  <!--
-  <div id = "device_popup" class = "popover main_shadow" v-show = "showpopover">
-    <div class = "arrow">
-    </div>
-    <ul>
-      <li v-for = "prop in device_properties">
-        <span class = "key">{{ $key }} :</span> {{ prop }}
-      </li>
-    </ul>
-  </div>
-  -->
-
 </template>
 
 <script>
-import Store from '../Store'
+import store from '../Store'
+// import _ from 'lodash'
+
 import Popup from './views/Popup'
 
 export default {
@@ -42,6 +34,7 @@ export default {
   },
   data () {
     return {
+      ready: false,
       showpopover: false,
       device_properties: {
         name: 'motorola',
@@ -57,13 +50,17 @@ export default {
   methods: {
     togglepopup: function () {
       var rect = this.$el.getBoundingClientRect()
-      console.log('qq', rect.top, rect.left, rect.height)
+      // console.log('qq', rect.top, rect.left, rect.height)
       this.showpopover = !this.showpopover
       this.posx = rect.left + rect.width + 'px'
       this.posy = rect.top + rect.height / 2 + 'px'
     },
     device_update: function (data) {
-      this.device_properties = data
+      if (typeof data.info !== 'undefined') {
+        // this.device_properties = _.orderBy(data, 'name')
+        this.device_properties = data
+        this.ready = true
+      }
     }
   },
   computed: {
@@ -72,10 +69,10 @@ export default {
     }
   },
   created () {
-    Store.on('device', this.device_update)
+    store.on('device', this.device_update)
   },
   destroyed () {
-    Store.remove_listener('device', this.device_update)
+    store.remove_listener('device', this.device_update)
   }
 }
 </script>
@@ -98,12 +95,20 @@ export default {
   box-sizing: border-box;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    background: transparent linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0)) repeat scroll 0% 0%;
+  }
+
+  .title {
+    color: #BCBCBC;
+    text-transform: uppercase;
+    font-size: 0.8em;
+    font-weight: 800;
+    padding: 0px 5px;
   }
 
   p {
   	margin: 0 0 0px;
-    font-weight: 600;
+    font-weight: 300;
     text-transform: lowercase;
     font-size: 0.7em;
   }
@@ -119,13 +124,12 @@ export default {
 
 #device_frame {
   .all-transitions;
-  height: 52px;
-  width: 28px;
   background: transparent none repeat scroll 0% 0%;
   border: 1px solid rgba(255, 255, 255, 0.53);
-  margin: 12px auto;
-  padding: 1px;
-  border-radius: 3px;
+  margin: 10px auto;
+  padding: 2px 1px 6px 1px;
+  border-radius: 2px;
+  display: inline-block;
 
   &.rotate {
     transform: rotate3d(0, 0, 1, 90deg);
@@ -139,8 +143,7 @@ export default {
     .all-transitions;
     width: 26px;
     height: 42px;
-    background: rgba(255, 255, 255, 0.06) none repeat scroll 0% 0%;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.2) none repeat scroll 0% 0%;
     border-radius: 1px;
   }
 }

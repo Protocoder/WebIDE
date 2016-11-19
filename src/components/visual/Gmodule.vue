@@ -1,5 +1,5 @@
 <template>
-  <div class = "gmodule vertical" class="draggable" @mousedown="startDrag" @mouseup="stopDrag" @mousemove="doDrag" @mouseout="stopDrag" :style="dragstyle">
+  <div class = "gmodule vertical draggable" @mousedown="startDrag" @mouseup="stopDrag" @mousemove="doDrag" @mouseout="stopDrag" :style="dragstyle">
     <h1>{{module.name}}</h1>
     <div class = "connectors">
       <div class = "slots">
@@ -72,7 +72,7 @@ export default {
       }
     }
   },
-  ready: function () {
+  mounted: function () {
     var p = this.$el.parentElement
     if (p.style.position === '') {
       p.style.setProperty('position', 'relative')

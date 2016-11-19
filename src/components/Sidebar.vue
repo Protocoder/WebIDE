@@ -1,28 +1,27 @@
 <template>
 
-  <!-- navigation -->
-  <nav id = "sidebar">
+  <div id = "sidebar">
+    <!-- navigation -->
+
     <!-- -->
     <ul class = "menu_separation">
-      <li id = "new_project" v-on:click="toggle($event)" v-bind:class = "{'selected':'new_project' == navitem }"><div class = "icon-box">+</div>New</li>
+      <li id = "new_project" v-on:click="toggle($event)" v-bind:class = "{'selected':'new_project' == navitem }"><i class = "fa fa-plus icon-box"></i><span>New</span></li>
     </ul>
 
     <ul class = "menu_separation">
-      <li id = "load_project" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_project' == navitem }"><div class = "icon-box">/</div>Projects</li>
+      <li id = "load_project" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_project' == navitem }"><i class = "fa fa-list icon-box"></i><span>Projects</span></li>
       <!-- <li id = "load_example" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_example' == navitem }"><div class = "icon-box">/</div>Examples</li> -->
-      <li id = "load_demo" class = "disabled" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_demo' == navitem }"><div class = "icon-box">/</div>Demos</li>
+      <li id = "load_demo" class = "disabled" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_demo' == navitem }"><i class = "fa fa-list icon-box"></i><span>Demos</span></li>
     </ul>
 
     <!-- this group changes the view in the router -->
     <ul class = "">
-      <li id = "load_documentation" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_documentation' == navitem }"><div class = "icon-box">/</div>Documentation</li>
-      <li id = "load_tutorials" class = "disabled" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_tutorials' == navitem }"><div class = "icon-box">*</div>Tutorials</li>
-      <li id = "load_preferences" class = "disabled" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_preferences' == navitem }"><div class = "icon-box">"</div>Preferences</li>
-      <li id = "load_about" class = "disabled" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_about' == navitem }"><div class = "icon-box">?</div>About</li>
+      <li id = "load_documentation" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_documentation' == navitem }"><i class = "fa fa-book icon-box"></i><span>Documentation</span></li>
+      <li id = "load_tutorials" class = "disabled" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_tutorials' == navitem }"><i class = "fa fa-leanpub icon-box"></i><span>Tutorials</span></li>
+      <li id = "load_preferences" class = "disabled" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_preferences' == navitem }"><i class = "fa fa-sliders icon-box"></i><span>Preferences</span></li>
+      <li id = "load_about" class = "disabled" v-on:click="toggle($event)" v-bind:class = "{'selected':'load_about' == navitem }"><i class = "fa fa-question icon-box"></i><span>About</span></li>
     </ul>
-
-  </nav>
-
+  </div>
 </template>
 
 <script>
@@ -38,22 +37,26 @@ export default {
   },
   methods: {
     toggle: function (event) {
-      var id = event.currentTarget.id
-
-      if (this.navitem !== id) {
-        this.navitem = id
-      } else {
-        this.navitem = ''
-      }
-      console.log(this.navitem)
+      this.toggle_str(event.currentTarget.id)
+      // console.log(this.navitem)
       // api.project_list_all("", function() {
       //
       // })
       // Store.project_list_all()
       // Store.project_action('run', 'Examples/Media', 'Camera')
-      Store.emit('toggle', id)
+    },
+    toggle_str: function (what) {
+      console.log('what')
+      if (this.navitem !== what) {
+        this.navitem = what
+      } else {
+        this.navitem = ''
+      }
+      Store.emit('toggle', what)
     }
-
+  },
+  created () {
+    Store.on('toggle_section', this.toggle_str)
   }
 }
 </script>
@@ -70,7 +73,7 @@ export default {
   /* menu */
   ul {
     &.menu_separation {
-      padding-bottom: 15px;
+      padding-bottom: 7px;
       margin-bottom: 15px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       position: relative;
@@ -105,7 +108,10 @@ export default {
          }
        }
 
-       &.v-link-active {
+      /*
+      * fix this
+      */
+       &.v-active {
          border-right: 8px solid rgba(255, 255, 255, 0.5);
          border-left: 2px solid white;
        }

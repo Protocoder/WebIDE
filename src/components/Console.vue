@@ -4,13 +4,14 @@
       <div class = "actionbar">
         <h1>console</h1>
         <ul>
+          <li class="fa fa-clock-o" v-on:click="showTime()" v-bind:class="{'enabled':showingTime}"></li>
           <li class="fa fa-lock" v-on:click="toggleLock()" v-bind:class="{'enabled':lock}"></li>
           <li class="fa fa-trash" v-on:click="clear()"></li>
         </ul>
       </div>
       <div class = "content">
-        <ul v-el:log>
-          <li v-for="log in logs | limitBy 10000000" class={{log.action}}> {{log.text}} </li>
+        <ul ref = "log">
+          <li v-for="log in slicedLogs" v-bind:class="log.action"><span class = "time" v-bind:class = "{'off': !showingTime}">{{log.time}}</span> {{log.text}} </li>
         </ul>
       </div>
     </div>
@@ -29,16 +30,29 @@ export default {
       /* {action: 'error', text: 'potato'}
       */],
       count: 0,
-      lock: false
+      lock: false,
+      limitNum: 500,
+      limitOffset: 0,
+      showingTime: false
+    }
+  },
+  computed: {
+    slicedLogs: function () {
+      return this.logs.slice(this.limitOffset, this.limitOffset + this.limitNum)
     }
   },
   methods: {
     console: function (data) {
-      this.logs.push({action: data.action, text: data.data})
+      console.log(data)
+      this.logs.push({action: data.action, time: data.time, text: data.data})
+
+      if (this.logs.length > this.limitNum) {
+        this.limitOffset = this.logs.length - this.limitNum
+      }
 
       if (this.lock) return
 
-      var ul = this.$els.log
+      var ul = this.$refs.log
       // wait until vue rerenders
       this.$nextTick(function () {
         ul.scrollTop = ul.scrollHeight
@@ -50,6 +64,9 @@ export default {
     },
     toggleLock () {
       this.lock = !this.lock
+    },
+    showTime () {
+      this.showingTime = !this.showingTime
     },
     project_action (action) {
       if (action === '/run') this.clear()
@@ -92,7 +109,7 @@ export default {
     overflow-y: auto;
 
     li {
-      padding: 5px 10px;
+      padding: 2px 0px;
       border-bottom: 1px dashed #333;
       font-family: Source Code Pro;
       line-height: 1.8em;
@@ -100,6 +117,7 @@ export default {
 
       &.log_error {
         border-left: 2px solid @error;
+        padding-left: 3px;
       }
 
       &.log_error::before {
@@ -114,6 +132,15 @@ export default {
 
       &:hover {
         background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .time {
+        &.off {
+          display: none;
+        }
+
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.8em;
       }
     }
   }

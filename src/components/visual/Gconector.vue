@@ -1,7 +1,7 @@
 <template>
-  <div class = "gconector"  width="{{xdelta}}px" height="{{ydelta}}px">
+  <div class = "gconector"  v-bind:width="xdelta+'px'" v-bind:height="ydelta+'px'">
 
-    <svg width="{{xdelta}}px" height="{{ydelta}}px">
+    <svg v-bind:width="xdelta+'px'" v-bind:height="ydelta+'px'">
       <path id="lineAB" :d="p" stroke="gray" stroke-width="3" fill="none" />
     </svg>
 

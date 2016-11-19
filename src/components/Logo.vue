@@ -23,7 +23,7 @@ h1.logo {
   font-family: 'Source Code Pro';
   font-size: 1.2em;
   font-weight: 100;
-  margin: 34px 0em 33px 0px;
+  margin: 23px 0em 33px 0px;
 
   color: rgba(255, 255, 255, 0.1);
   font-weight: 800;

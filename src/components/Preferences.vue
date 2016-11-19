@@ -25,7 +25,7 @@ export default {
   },
   created () {
   },
-  ready () {
+  mounted () {
   },
   destroyed () {
   }

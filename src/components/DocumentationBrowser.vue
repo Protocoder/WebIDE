@@ -1,30 +1,41 @@
 <template>
-  <div class = "main_shadow documentation" v-bind:style = "">
+  <div class = "editor_panel main_shadow documentation" v-bind:style = "">
+    <div class = "btn-sidebar btn-close" v-on:click = "close">
+      <i class = "fa fa-close"></i>
+    </div>
+
     <div class = "header">
-      <h1 class = "title">Documentation</h1>
-      <input type = "text" v-model = "search" placeholder="search" />
+      <!-- <h1 class = "title">Documentation</h1> -->
+      <input type = "text" v-model = "search" placeholder="type to search..." />
     </div>
 
     <div class = "content">
       <div id = "browser">
-        <div v-for = "object in documentation | orderBy 'name'" class = "object">
+        <!-- TODO orderBy -->
+        <div v-for = "object in queriedDocumentation" class = "object">
           <h3>{{object.name}}</h3>
           <ul>
-            <li v-for = "f in object.fields | orderBy 'name' | filterBy search in 'name'"><p>{{f.name}}</p></li>
+            <!-- TODO filter and orderBy name-->
+            <li v-for = "f in object.fields"><p>{{f.name}}</p></li>
+          </ul>
           <ul>
-            <li v-for = "m in object.methods | orderBy 'name' | filterBy search in 'name'"><p v-on:click = "select_method(m)">{{m.name}}()</p></li>
+            <!-- TODO filter and orderBy name -->
+            <li v-for = "m in object.methods"><p v-on:click = "select_method(object, m)">{{m.name}}()</p></li>
           </ul>
         </div>
       </div>
 
-      <documentation-card :data = "selected"></documentation-card>
+      <div id = "card">
+        <documentation-card v-if = "show_card" :data = "selected"></documentation-card>
+      </div>
     </div>
 
   </div>
 </template>
 
 <script>
-import Store from '../Store'
+import store from '../Store'
+import _ from 'lodash'
 import DocumentationCard from './DocumentationCard'
 
 export default {
@@ -32,32 +43,73 @@ export default {
     DocumentationCard
   },
   name: 'DocumentationBrowser',
-  props: {
-    documentation: ''
-  },
   data () {
     return {
-      selected: '',
-      search: ''
+      documentation: store.state.documentation,
+      selected: {},
+      search: '',
+      show_card: false
     }
   },
   computed: {
     arrowposition: function () {
+    },
+    queriedDocumentation: function () {
+      var that = this
+      var doc = _.cloneDeep(this.documentation)
+
+      if (!doc) return
+      var k = doc.length
+      while (k--) {
+        doc[k].methods = doc[k].methods.filter(function (o) {
+          if (o.name.toLowerCase().indexOf(that.search.toLowerCase()) !== -1) {
+            return o
+          }
+        })
+
+        doc[k].fields = doc[k].fields.filter(function (o) {
+          if (o.name.toLowerCase().indexOf(that.search.toLowerCase()) !== -1) {
+            return o
+          }
+        })
+
+        if (doc[k].methods.length === 0) {
+          doc.splice(k, 1)
+          // console.log('remove ' + k)
+        }
+      }
+      return doc
     }
   },
   methods: {
     load_documentation: function (doc) {
-      console.log('loaded')
-      this.documentation = Store.state.documentation
+      // this.documentation = store.state.documentation
+      this.documentation = _.sortBy(store.state.documentation, 'name')
+      for (var k in this.documentation) {
+        this.documentation[k].methods = _.sortBy(this.documentation[k].methods, 'name')
+        this.documentation[k].fields = _.sortBy(this.documentation[k].fields, 'name')
+      }
+      // console.log('loaded ', this.documentation)
     },
-    select_method: function (method) {
-      console.log(method)
-      this.selected = method
+    select_method: function (object, method) {
+      console.log(object.name, method.name)
+      this.selected = { 'object': object, 'method': method }
+      this.show_card = true
+    },
+    close: function () {
+      store.emit('toggle', 'load_documentation')
+    },
+    performSearch: function (objs) {
+      var that = this
+      console.log('qq', objs)
+      return objs.filter(function (o) {
+        return o.name.indexOf(that.search) !== -1
+      })
     }
   },
   created () {
-    Store.load_documentation()
-    Store.on('documentation_loaded', this.load_documentation)
+    store.load_documentation()
+    store.on('documentation_loaded', this.load_documentation)
   }
 }
 </script>
@@ -69,15 +121,12 @@ export default {
   background: white;
   color: black;
   display: flex;
+  min-height: 50%;
+  max-height: 50%;
   flex-direction: column;
   box-sizing: border-box;
   padding: 0px;
-  height: 500px;
   z-index: 1;
-
-  & > div {
-    padding: 10px;
-  }
 
   h1 {
     font-size: 1.1em;
@@ -93,47 +142,57 @@ export default {
 
   h3 {
     font-weight: 600;
-    font-size: 1.2em;
-    padding: 3px;
-    padding-bottom: 5px;
+    font-size: 1.1em;
+    padding: 1px 0px 4px 3px;
   }
 
   .header {
-    display: flex;
-    border-bottom: 1px solid #ddd;
     background: #ddd;
     align-items: center;
+    color: black;
+    padding: 0;
 
     .title {
       width: 100%;
     }
 
     input {
-      background: gray;
-      color: white;
       border: 0px;
       outline: none;
-      padding: 5px;
+      padding: 15px;
       border-radius: 2px;
+      background: transparent;
+      width: 100%;
     }
   }
 
   .content {
     display: flex;
+    flex-direction: row;
     height: 100%;
+    min-height: 1px;
 
     #browser {
-      width: 60%;
+      flex: 1;
       overflow-y: scroll;
-      column-count: auto;
-      column-width: 120px;
-      column-span: all;
-      column-gap: 10px;
+      overflow-x: hidden;
 
       .object {
         display: inline-block;
         padding: 10px;
         vertical-align: top;
+        width: 100%;
+        box-sizing: border-box;
+
+        ul {
+          column-count: auto;
+          -moz-column-count: auto;
+          column-gap: 10px;
+          -moz-column-gap: 10px;
+          column-width: 80px;
+          -moz-column-width: 80px;
+          font-size: 0.8em;
+        }
 
         li {
           color: #333;
@@ -151,7 +210,12 @@ export default {
         }
       }
     }
+  }
 
+  #card {
+    flex: 1;
+    overflow: hidden;;
+    overflow-y: auto;
   }
 
 }

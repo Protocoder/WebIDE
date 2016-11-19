@@ -1,5 +1,5 @@
 <template>
-  <div class = "popover {{ arrow }}" v-bind:style = "arrowposition">
+  <div class = "popover" v-bind:class = "arrow" v-bind:style = "arrowposition">
     <slot>
     No content to display
     </slot>
@@ -24,7 +24,7 @@ export default {
       console.log('popup: ' + this.posx + ' ' + this.posy)
       console.log('popup2: ' + 'top: ' + this.posy + '; left: ' + this.posx + ';')
 
-      if (this.arrow === 'left') return 'top: 320px; left: ' + this.posx + ';'
+      if (this.arrow === 'left') return 'bottom: 20px; left: ' + this.posx + ';'
       else return 'top: ' + this.posy + '; left: -320px;'
     }
   },
@@ -62,7 +62,7 @@ export default {
       font-weight: 800
     }
     li {
-      padding-bottom: 0.5em;
+      padding-bottom: 0.3em;
     }
   }
 

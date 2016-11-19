@@ -11,58 +11,65 @@ export default {
     orientation: String,
     container: String
   },
-  ready () {
+  mounted () {
     var that = this
-    var handle = this.$el
-    var container = document.querySelector('#' + this.container)
-    // console.log(this.orientation + ' ' + handle + ' ' + this.container)
 
-    handle.onmousedown = function (e) {
-      var handlePos
-      var containerSize
-      // console.log(this.orientation)
+    this.$nextTick(function () {
+      var handle = this.$el
+      var container = document.querySelector('#' + this.container)
+      // console.log(this.orientation + ' ' + handle + ' ' + this.container)
 
-      if (that.orientation === 'vertical') {
-        handlePos = handle.getBoundingClientRect().left
-        containerSize = container.getBoundingClientRect().width
-        // console.log(that.container + ' qq')
-      } else {
-        // console.log('qq2')
-        handlePos = handle.getBoundingClientRect().top
-        containerSize = container.getBoundingClientRect().height
-      }
-
-      document.onmousemove = function (e) {
-        e.preventDefault()
+      handle.onmousedown = function (e) {
+        var handlePos
+        var containerSize
+        // console.log(this.orientation)
+        // console.log(e)
 
         if (that.orientation === 'vertical') {
-          // move handle
-          var barW = handle.getBoundingClientRect().width
-          var positionX = e.pageX - handlePos - barW / 2
-          // console.log(handleX + ' ' + ' ' + ' ' + e.pageX + ' ' + position)
-
-          // adjust container size
-          container.style.width = containerSize - positionX + 'px'
+          handlePos = handle.getBoundingClientRect().left
+          containerSize = container.getBoundingClientRect().width
+          // console.log(that.container + ' qq')
         } else {
-          // move handle
-          var barH = handle.getBoundingClientRect().height
-          var positionY = e.pageY - handlePos - barH / 2
-          // console.log(handleX + ' ' + ' ' + ' ' + e.pageX + ' ' + position)
-
-          // adjust container size
-          container.style.height = containerSize + positionY + 'px'
+          // console.log('qq2')
+          handlePos = handle.getBoundingClientRect().top
+          containerSize = container.getBoundingClientRect().height
         }
+
+        document.onmousemove = function (e) {
+          if (that.orientation === 'vertical') {
+            // move handle
+            var barW = handle.getBoundingClientRect().width
+            var positionX = e.pageX - handlePos - barW / 2
+            // console.log(handleX + ' ' + ' ' + ' ' + e.pageX + ' ' + position)
+
+            // adjust container size
+            container.style.width = containerSize - positionX + 'px'
+          } else {
+            // move handle
+            var barH = handle.getBoundingClientRect().height
+            var positionY = e.pageY - handlePos - barH / 2
+            // console.log(handleX + ' ' + ' ' + ' ' + e.pageX + ' ' + position)
+
+            // adjust container size
+            container.style.height = containerSize + positionY + 'px'
+          }
+          e.preventDefault()
+          e.stopPropagation()
+        }
+
+        document.onmouseup = function (e) {
+          document.onmousemove = null
+        }
+
+        e.preventDefault()
+        e.stopPropagation()
       }
 
-      document.onmouseup = function (e) {
+      handle.onmouseup = function () {
+        // console.log('handle mouse up')
         document.onmousemove = null
       }
-    }
-
-    handle.onmouseup = function () {
-      // console.log('handle mouse up')
-      document.onmousemove = null
-    }
+    })
   },
   destroyed () {
     Store.remove_listener('toggle', this.toggle_section)
@@ -82,8 +89,8 @@ export default {
   &.vertical {
     width: 5px;
     height: 100%;
-    left: -3px;
-    top: 82px;
+    left: -2px;
+    top: 62px;
 
     &:hover {
       cursor: col-resize;
@@ -94,10 +101,8 @@ export default {
   &.horizontal {
     width: 100%;
     height: 5px;
-    width: calc(~"100% - 15px");
+    width: calc(~"100%");
     margin-top: -8px;
-
-
 
     &:hover {
       cursor: row-resize;

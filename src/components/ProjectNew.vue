@@ -1,9 +1,11 @@
 <template>
-  <!-- Project Creation Panel -->
   <div class = "editor_panel main_shadow" id="editor_panel_new">
+    <div class = "btn-sidebar btn-close" v-on:click = "close">
+      <i class = "fa fa-close"></i>
+    </div>
+
     <div class = "left">
       <div class = "form">
-
         <!-- info input -->
         <!--
         <label for="choosefolder">choose a folder</label>
@@ -13,13 +15,13 @@
         </select>
         -->
 
-        <label for="projectname">project name</label>
-        <input id="projectname" name="projectname" type="text" placeholder="Write here the project name" class="form-control input-md" v-model = "projectName" required="">
+        <label for="projectname">New Project</label>
+        <input id="projectname" name="projectname" type="text" placeholder="MyProject" class="form-control input-md" v-model = "projectName" required="">
 
-        <div class = "">
-          <label for="create"></label>
+        <div class = "submit">
           <button id="create" name="create" class="btn btn-success" v-on:click = "create_project()">Create</button>
-          <button id="cancel" name="cancel" class="btn btn-default">Cancel</button>
+          <button id="close" name="close" class="btn btn-default" v-on:click = "close()">Cancel</button>
+          <message-error v-show = "!status">The project cannot be created</message-error>
         </div>
       </div>
     </div>
@@ -36,12 +38,17 @@
 
 <script>
 import Store from '../Store'
+import MessageError from './views/MessageError'
 
 export default {
   name: 'ProjectNew',
+  components: {
+    MessageError
+  },
   data () {
     return {
-      projectName: ''
+      projectName: '',
+      status: true
     }
   },
   methods: {
@@ -51,6 +58,10 @@ export default {
     project_created (status) {
       this.status = status
       console.log('created ' + status)
+    },
+    close () {
+      Store.emit('toggle', 'new_project')
+      this.status = true
     }
   },
   created () {
@@ -66,7 +77,6 @@ export default {
 @import "../assets/css/variables.less";
 
 #editor_panel_new {
-  height: 150px;
 
   .left {
     flex: 1;
@@ -92,6 +102,11 @@ export default {
 
   .login_bottom {
     text-align: center;
+  }
+
+  .submit {
+    display: flex;
+    align-items: center;
   }
 
 }

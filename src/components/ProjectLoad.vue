@@ -1,14 +1,17 @@
 <template>
-  <!-- Project List Panel -->
-  <div class = "editor_panel main_shadow">
+  <div id = "project-load" class = "editor_panel main_shadow">
+    <div class = "btn-sidebar btn-close" v-on:click = "close">
+      <i class = "fa fa-close"></i>
+    </div>
+
     <div class="left">
-      <div class = "project_list" v-for="p in state.projects">
-        <h1> {{p.name}} </h1>
+      <div class = "project_list" v-for="(p, pindex) in state.projects">
+        <h1> {{pindex}} </h1>
+
         <ul>
-          <li v-for = "f in p.files" v-bind:class="{'selected':selected == $index && pselected == $parent.$index}" v-on:click = "choose_folder($parent.$index, $index, $event)" id = "{{f.name}}"> {{f.name}} </li>
+          <li v-for = "(f, index) in p" v-bind:class="{'selected':selected == index && pselected == pindex}" v-on:click = "choose_folder(pindex, index, $event)" v-bind:id = "f.name"> {{f.name}} </li>
         </ul>
       </div>
-
     </div>
     <div class="right">
       <div class = "project_info">
@@ -28,14 +31,15 @@
 </template>
 
 <script>
-import Store from '../Store'
+import store from '../Store'
+import _ from 'lodash'
 
 export default {
   name: 'ProjectLoad',
   data () {
     return {
-      state: Store.state,
-      id: Store.state.id,
+      state: store.state,
+      id: store.state.id,
       pselected: -1,
       selected: -1,
       folder_chosen: [],
@@ -54,25 +58,34 @@ export default {
       // console.log(pindex, index, this.projects[pindex].files[index].name)
       this.pselected = pindex
       this.selected = index
-      this.uri.type = this.state.projects[pindex].name
-      this.uri.folder = this.state.projects[pindex].files[index].name
 
-      this.folder_chosen = this.state.projects[pindex].files[index].files
+      this.uri.type = pindex
+      this.uri.folder = this.state.projects[pindex][index].name
+
+      // console.log(this.uri.type, this.uri.folder)
+      // console.log(this.state.projects[pindex][index].files)
+
+      this.folder_chosen = _.orderBy(this.state.projects[pindex][index].files, 'name')
     },
     load_project: function (project) {
       // this.uri.fullpath = this.uri.folder + '/' + folder.name
-      // Store.emit('project_action', '/run', this.uri.fullpath)
-      // Store.emit('project_load', this.uri.fullpath)
-      console.log(this.uri.fullpath, this.uri.type, this.uri.folder, project.name)
-      Store.emit('toggle', 'load_project')
-      this.$route.router.go({name: 'editor.load', params: { type: this.uri.type, folder: this.uri.folder, project: project.name }})
+      // store.emit('project_action', '/run', this.uri.fullpath)
+      // store.emit('project_load', this.uri.fullpath)
+      // console.log(this.uri.fullpath, this.uri.type, this.uri.folder, project.name)
+
+      this.close()
+      var to = {name: 'editor.load', params: { type: this.uri.type, folder: this.uri.folder, project: project.name }}
+      this.$router.push(to)
+    },
+    close: function () {
+      store.emit('toggle', 'load_project')
     }
   },
   created () {
-    Store.on('new_project', this.new_project)
+    store.on('new_project', this.new_project)
   },
   destroyed () {
-    Store.remove_listener('new_project', this.new_project)
+    store.remove_listener('new_project', this.new_project)
   }
 }
 </script>
@@ -80,21 +93,9 @@ export default {
 <style lang='less'>
 @import "../assets/css/variables.less";
 
-.editor_panel {
-  .project_list {
-    margin-bottom: 12px;
-    font-family: 'Open Sans';
-
-    h1 {
-      color: @primaryAccent;
-      font-weight: 600;
-      padding: 5px 0px;;
-      border-bottom: 0px solid @primaryAccent;
-      margin-bottom: 5px;
-      text-transform: uppercase;
-    }
-
-  }
+#project-load {
+  margin-bottom: 12px;
+  font-family: 'Open Sans';
 
   ul {
     text-align: left;
@@ -105,8 +106,9 @@ export default {
 
     li {
       padding: 0.3em;
-      font-size: 1.2em;
-      font-weight: 300;
+      font-size: 1em;
+      font-weight: 400;
+      color: #e8e8e8;
 
       &:hover, &.selected {
         background-color: rgba(255, 255, 255, 0.69);
@@ -120,8 +122,23 @@ export default {
     }
   }
 
+  .left {
+    h1 {
+      color: @primaryAccent;
+      font-weight: 600;
+      padding: 5px 0px;;
+      border-bottom: 0px solid @primaryAccent;
+      margin-bottom: 0px;
+      text-transform: uppercase;
+    }
+
+    .project_list {
+      margin-bottom: 10px;
+    }
+  }
   .right {
   	text-align: center;
+
 
     .project_info {
       display: none;
@@ -149,7 +166,6 @@ export default {
       font-weight: 500;
     }
   }
-
 }
 
 </style>

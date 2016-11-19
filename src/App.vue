@@ -1,6 +1,13 @@
 <template>
+  <div>
+  <div id ="top_bar">
+    <h1>\\P\</h1>
+    <p> examples/Device/Vibration </p>
+  </div>
+
   <div id="main_container">
-    <div id = "left_container" class = "container">
+    <div v-show = "backdrop" id = "backdrop" v-on:click = "toggle_left_container"></div>
+    <div id = "left_container" class = "container" v-show = "left_container">
       <logo></logo>
       {{dndState}}
       <sidebar></sidebar>
@@ -8,23 +15,42 @@
     </div>
 
     <div id = "central_container" class = "container">
-      <project-new v-show = "panel_visibility.new_project" transition="banner-anim"></project-new>
+      <project-checker v-show = "false"></project-checker>
+
+      <transition name = "banneranim">
+      <project-new v-show = "panel_visibility.new_project"></project-new>
+      </transition>
+
+      <transition name = "banneranim">
       <project-load v-show = "panel_visibility.load_project" transition="banner-anim"></project-load>
+      </transition>
+
+      <transition name = "banneranim">
       <documentation-browser v-show = "panel_visibility.load_documentation" transition="banner-anim"></documentation-browser>
+      </transition>
+
+      <transition name = "banneranim">
       <tutorial-loader v-show = "panel_visibility.load_tutorials" transition="banner-anim"></tutorial-loader>
+      </transition>
+
+      <transition name = "banneranim">
       <preferences v-show = "panel_visibility.load_preferences" transition="banner-anim"></preferences>
+      </transition>
+
+      <transition name = "banneranim">
       <about v-show = "panel_visibility.load_about" transition="banner-anim"></about>
+      </transition>
+
+      <!--
+      <interface-editor v-show = "false"></interface-editor>
+      -->
 
       <!--
       <dashboard></dashboard>
     -->
     <!--  <calender></calender> -->
 
-      <!--
-      <audio-player src = "/static/meow.ogg"></audio-player>
-      <video-player src = "/static/cityfireflies.m4v"></video-player>
-      <video-player src = "https://www.youtube.com/embed/BC2dRkm8ATU"></video-player>
-      <video-player src = "http://player.vimeo.com/video/25071870"></video-player>
+  <!--
 
       <webview url = "http://127.0.0.1" :showcontrols = "true"></webview>
       <webview url = "http://www.slashdot.com" :showcontrols = "false"></webview>
@@ -63,15 +89,22 @@
           <console></console>
           <handle orientation = "horizontal" container = "console"></handle>
 
-          <!-- <dashboard></dashboard> -->
         </div>
       </div>
     </div>
+
+    <debug-panel v-show = "false"></debug-panel>
+    <dashboard v-show = "false"></dashboard>
+  </div>
+
+  <canvas id="myCanvas" width = "800px" height = "800px"></canvas>
   </div>
 </template>
 
 <script>
 import Store from './Store'
+
+import DebugPanel from './components/DebugPanel'
 
 import Logo from './components/Logo'
 import Sidebar from './components/Sidebar'
@@ -95,14 +128,17 @@ import TutorialLoader from './components/TutorialLoader'
 import Gcanvas from './components/visual/Gcanvas'
 import Webview from './components/views/Webview'
 import P5 from './components/views/P5js'
-import VideoPlayer from './components/views/VideoPlayer'
-import AudioPlayer from './components/views/AudioPlayer'
+
 import Calender from './components/views/Calender'
+import InterfaceEditor from './components/InterfaceEditor'
+
+import ProjectChecker from './components/ProjectChecker'
 
 // import ResizeHandle from 'resize-handle'
 
 export default {
   components: {
+    DebugPanel,
     Logo,
     Sidebar,
     Device,
@@ -124,9 +160,10 @@ export default {
     Gcanvas,
     Webview,
     P5,
-    VideoPlayer,
-    AudioPlayer,
-    Calender
+    Calender,
+    ProjectChecker,
+    InterfaceEditor
+
   },
   data () {
     return {
@@ -140,13 +177,17 @@ export default {
         load_preferences: false,
         load_about: false
       },
-      dndState: ''
-      // sharedState: Store.state
+      left_container: false,
+      backdrop: false,
+      isMobile: false,
+      dndState: '',
+      myVar: 'hello',
+      sharedState: Store.state
     }
   },
   methods: {
     changeTitle (vm) {
-      console.log(vm)
+      // console.log(vm)
       document.title = 'Protocoder // ' + vm.title
     },
     handleDragEnter: function () {
@@ -155,22 +196,45 @@ export default {
     handleDragLeave: function () {
       this.dndState = 'leave'
     },
+    toggle_left_container: function () {
+      this.backdrop = !this.backdrop
+      this.left_container = !this.left_container
+    },
     toggle_section: function (what) {
       console.log(what)
-      // if toggle the given panel, the rest off
+
       for (var k in this.panel_visibility) {
-        if (k === what) this.panel_visibility[k] = !this.panel_visibility[k]
-        else this.panel_visibility[k] = false
+        if (k === what) {
+          console.log(what)
+          this.panel_visibility[k] = !this.panel_visibility[k]
+        } else this.panel_visibility[k] = false
+      }
+
+      if (this.isMobile) {
+        this.left_container = false
+        this.backdrop = false
       }
     },
     project_created: function (created) {
       if (created) this.panel_visibility.new_project = false
+    },
+    resize: function () {
+      this.isMobile = window.getComputedStyle(document.querySelector('body'), ':before').getPropertyValue('content').replace(/"/g, '') === 'mobile'
+      console.log(this.isMobile)
+      this.left_container = !this.isMobile
     }
   },
   created () {
+    var that = this
     Store.on('toggle', this.toggle_section)
-    Store.emit('project_list_all')
+    Store.on('toggle_left_container', this.toggle_left_container)
+    // Store.emit('project_list_all')
     Store.on('project_created', this.project_created)
+
+    this.resize()
+    window.addEventListener('resize', function () {
+      that.resize()
+    })
 
     // show popup when trying to exit app
     window.onbeforeunload = function (e) {
@@ -179,9 +243,42 @@ export default {
       if (e) e.returnValue = msg // For IE and Firefox prior to version 4
       return msg // For Safari
     }
-  },
-  ready () {
 
+    Store.state.browser = {
+      'editor_width': '300px',
+      'files_height': '200px',
+      'console_height': '100px'
+    }
+    Store.save_browser_config()
+    Store.state.browser = {}
+    Store.load_browser_config()
+    console.log(Store.state.browser.editor_width)
+  },
+  mounted () {
+    /*
+    var c = document.getElementById('myCanvas')
+    var ctx = c.getContext('2d')
+    ctx.scale(1, 1)
+
+    function draw () {
+      // ctx.moveTo(500 * Math.random(), 500 * Math.random())
+      // ctx.lineTo(500 * Math.random(), 500 * Math.random())
+
+      ctx.lineWidth = 1 // 2 * Math.random()
+      // ctx.setLineDash([5 * Math.random(), 5 * Math.random()])
+      ctx.strokeStyle = 'rgba(255, 255, 255,' + Math.random() + ')'
+
+      for (var i = 0; i < 125 * Math.random(); i++) {
+        ctx.beginPath()
+        ctx.arc(780 * Math.random(), 500 * Math.random(), 10 * Math.random(), 0, 2 * Math.PI)
+        ctx.stroke()
+      }
+
+      window.requestAnimationFrame(draw)
+    }
+
+    window.requestAnimationFrame(draw)
+    */
   },
   destroyed () {
     Store.remove_listener('toggle', this.toggle_section)
@@ -189,7 +286,7 @@ export default {
   },
   events: {
     'run': function (msg) {
-      console.log('event parent run ' + msg)
+      // console.log('event parent run ' + msg)
       return true
     }
   }
@@ -203,13 +300,29 @@ export default {
 @import "assets/css/variables.less";
 @import "assets/css/hacks.less";
 
+#myCanvas {
+  position: absolute;
+  top: 0;
+  z-index: -1
+}
+
 body {
 	font-family: Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif;
   color: @primaryTextColor;
 	background: @primaryBackground;
 	font-size: @defaultFontSize;
   overflow: hidden;
-  background: linear-gradient(0deg, #716938, #415A71)
+  background: #5e7e8a;
+  background: linear-gradient(190deg, #606163, #415A71);
+  background: linear-gradient(0deg, #716938, #415A71);
+}
+
+/* hack to export the media queries to javascript
+https://www.lullabot.com/articles/importing-css-breakpoints-into-javascript
+*/
+body:before {
+  content: "desktop";
+  display: none;
 }
 
 @keyframes initAnim {
@@ -221,6 +334,72 @@ body {
         transform: translateY(0);
         opacity: 1;
     }
+}
+
+#top_bar {
+  color: black;
+  font-size: 1em;
+  width: 100%;
+  background: rgb(245, 211, 40);
+  box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.29);
+  display: none;
+
+  & > * {
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 1.5em;
+  }
+
+  p {
+    background: rgba(0, 0, 0, 0.2);
+    color: white;
+    padding: 5px 20px;
+    font-size: 1em;
+    border-radius: 125px;
+    margin: 10px;
+    font-weight: 600;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+  }
+}
+
+#backdrop {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  position: absolute;
+  z-index: 3;
+}
+
+.btn-sidebar {
+  text-shadow: 0px 0px 1px black;
+  display: none;
+  font-size: 2em;
+  color: @primaryAccent;
+  cursor: pointer;
+  z-index: 3;
+
+  &:hover {
+    color: darken(@primaryAccent, 10%);
+  }
+
+  &:active {
+    color: darken(@primaryAccent, 30%);
+  }
+}
+
+.btn-open {
+  margin-left: 5px;
+  margin-right: 12px;
+}
+
+.btn-close {
+  padding: 10px;
+  position: absolute;
+  right: 0;
 }
 
 #main_container {
@@ -239,7 +418,8 @@ body {
   order: 1;
   animation: 0.3s ease-out 0s 1 normal initAnim;
   animation-fill-mode: backwards;
-  padding: 0px 8px;
+  padding: 0px 5px;
+  min-width: 105px;
 }
 
 #central_container {
@@ -247,7 +427,6 @@ body {
   flex: 2;
   animation: 0.3s ease-out 0.2s 1 normal initAnim;
   animation-fill-mode: backwards;
-
 }
 
 #right_container {
@@ -258,6 +437,7 @@ body {
   animation: 0.3s ease-out 0.4s 1 normal initAnim;
   animation-fill-mode: backwards;
   padding: 0px 8px;
+  min-width: 135px;
 
   /*
   flex: 1;
@@ -272,6 +452,8 @@ button {
 	border-radius: 0px;
 	cursor: pointer;
   padding: 6px 20px;
+  width: 85px;
+  margin-right: 3px;
   border-radius: 1px;
   border: 0px solid @transparentWhite;
   font-family: 'Open Sans';
@@ -302,10 +484,9 @@ button {
     background: rgb(200, 200, 200)
   }
 
-
   &.torun {
     &:before {
-      background: rgba(122, 255, 0, 0.5);
+      background: rgba(0, 238, 255, 0.8);
     }
   }
 
@@ -321,13 +502,14 @@ button {
 }
 
 .editor_panel {
+  position: relative;
   display: flex;
   flex-flow: row;
   background-color: rgba(255, 255, 255, 0.34);
   color: white;
   padding: 10px 15px;
   border-radius: 1px;
-  height: 400px;
+  max-height: 80%;
   z-index: 1;
 
  	.left, .right {
@@ -348,13 +530,19 @@ button {
 }
 
 #panels {
-  margin-top: 76px;
+  margin-top: 61px;
   width: 100%;
   height: 100%;
   box-sizing: border-box;
+
+  #editor_panels {
+    position: relative;
+    height: 100%;
+  }
 }
 
 .proto_panel {
+  max-height: 70%;
   color: black;
   box-sizing: border-box;
 	position: relative;
@@ -364,20 +552,24 @@ button {
   font-family: 'Open Sans';
   color: white;
   border: 1px solid rgba(0, 0, 0, 0.28);
-  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3);
+  /* box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3); */
+  border: 1px solid rgba(0, 0, 0, 0.22);
+  border-radius: 2px;
   height: 200px;
   min-height: 30px;
 
   .wrapper {
     overflow: hidden;
     height: 100%;
+    display: flex;
+    flex-direction: column;
   }
-  
+
   &:hover {
     border: 1px solid @primaryAccent;
 
     .actionbar ul {
-      display: block;
+      box-sizing: border-box;
     }
   }
 
@@ -386,16 +578,22 @@ button {
 
 	.actionbar {
     display: flex;
-    padding: 10px;
     font-weight: 700;
     text-transform: uppercase;
     font-size: 0.8em;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     width: 100%;
+    min-height: 30px;
+    max-height: 30px;
     text-transform: uppercase;;
     font-weight: 700;
     font-size: 0.7em;
     box-sizing: border-box;
+
+    & > * {
+      padding: 10px;
+      box-sizing: border-box;
+    }
 
 	  h1 {
 	    text-align: left;
@@ -408,7 +606,7 @@ button {
 	  }
 
 		ul {
-      display: none;
+      display: block;;
 
 			li {
 				display: inline-block;
@@ -432,18 +630,32 @@ button {
   }
 }
 
+
 /* always present */
-.banner-anim-transition {
+.banneranim-enter, .banneranim-leave-active {
+  opacity: 0;
+  transform: translate3d(0px, -20px, 0) scale3d(1, 1, 1);
+}
+
+.banneranim-enter-active, .banneranim-leave-active {
   transition: all 0.3s ease;
-  transform: scale3d(1, 1, 1);
+}
+
+
+
+/*
+.banneranim-active, .banneranim-leave-active {
+  transition: all 0.3s ease;
+  transform: translate3d(0px, 20px, 0) scale3d(1, 1, 1);
   overflow: hidden;
 }
 
-.banner-anim-enter, .banner-anim-leave {
+.banneranim-enter, .banneranim-leave-active {
   transform: translate3d(0px, -20px, 0) scale3d(1, 1, 1);
   opacity: 0;
   height: 0px;
 }
+*/
 
 .banner-anim2-transition {
   transition: all 0.3s ease;
@@ -459,9 +671,36 @@ button {
 
 /* adjust to different sizes */
 @media screen and (max-width: 600px) {
+
+  body:before {
+    content: "mobile";
+  }
+
+  #sidebar ul li {
+    font-size: 1em !important;
+  }
+
+  .btn-sidebar {
+    display: inline;
+  }
+
   #left_container {
-    display: none;
-    flex-flow: row;
+    display: flex;
+    flex-flow: column;
+    order: 1;
+    animation: .3s ease-out 0s 1 normal initAnim;
+    animation-fill-mode: backwards;
+    padding: 0 5px;
+    position: absolute;
+    z-index: 100;
+    background: @primaryBackground;
+    height: 100%;
+    box-shadow: 0 2px 3px 3px rgba(0,0,0,.22);
+    left: 0px;
+
+    &:on {
+      left: 0px;
+    }
   }
 
   #right_container {
@@ -474,6 +713,14 @@ button {
 
   #project-options {
     padding: 16px 5px 16px 5px !important;
+
+    #project-actions {
+    }
+  }
+
+  .editor_panel {
+    max-height: 100%;
+    height: 100%;
   }
 }
 

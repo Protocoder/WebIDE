@@ -6,5 +6,5 @@ export function domain (url) {
 }
 
 export function fa_icon (icon_name) {
-  return '<i class = "fa fa-' + icon_name + '"></i>'
+  return '<i class = "fa fa-' + icon_name + '-o"></i>'
 }
