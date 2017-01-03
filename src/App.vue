@@ -9,7 +9,6 @@
     <div v-show = "backdrop" id = "backdrop" v-on:click = "toggle_left_container"></div>
     <div id = "left_container" class = "container" v-show = "left_container">
       <logo></logo>
-      {{dndState}}
       <sidebar></sidebar>
       <device></device>
     </div>
@@ -45,9 +44,6 @@
       <interface-editor v-show = "false"></interface-editor>
       -->
 
-      <!--
-      <dashboard></dashboard>
-    -->
     <!--  <calender></calender> -->
 
   <!--
@@ -60,7 +56,7 @@
 
       <!--
       <gcanvas></gcanvas>
-    -->
+      -->
 
       <router-view
         class=""
@@ -253,32 +249,98 @@ export default {
     Store.state.browser = {}
     Store.load_browser_config()
     console.log(Store.state.browser.editor_width)
+
+    var keyShortcuts = [
+      { ctrl: true, shift: false, alt: false, meta: false, key: 'KeyL', execute: ['toggle', 'load_project'] },
+      { ctrl: true, shift: false, alt: false, meta: false, key: 'KeyR', execute: ['project_run', ''] },
+      { ctrl: true, shift: false, alt: false, meta: false, key: 'KeyS', execute: ['project_editor_save', ''] },
+      //
+      //
+      { ctrl: true, shift: false, alt: false, meta: false, key: 'KeyD', execute: ['toggle', 'load_documentation'] },
+      { ctrl: true, shift: false, alt: false, meta: false, key: 'KeyH', execute: 'qq21' },
+      { ctrl: true, shift: false, alt: false, meta: false, key: 'KeyF', execute: 'qq21' },
+      { ctrl: true, shift: false, alt: false, meta: false, key: 'KeyI', execute: ['toggle_device_info', ''] }
+
+    ]
+    // load            ctrl + shift + l
+    // run / stop      ctrl + r // cmd + r
+    // save            ctrl + s // cmd + s
+    // save as
+    // execute code    ctrl + shift + x // cmd + shift + x
+    // documentation   ctrl + d // cmd + d
+    // dashboard       ctrl + d // cmd + d
+    // fullscreen editor ctrl + f // cmd + f
+    window.addEventListener('keydown', function (e) {
+      console.log('key pressed', e)
+
+      for (var i in keyShortcuts) {
+        if (keyShortcuts[i].ctrl === e.ctrlKey &&
+            keyShortcuts[i].shift === e.shiftKey &&
+            keyShortcuts[i].alt === e.altKey &&
+            keyShortcuts[i].meta === e.metaKey &&
+            keyShortcuts[i].key === e.code) {
+          Store.emit(keyShortcuts[i].execute[0], keyShortcuts[i].execute[1])
+          console.log('keyshortcut is pressed ' + keyShortcuts[i].execute)
+          e.preventDefault()
+          e.stopPropagation()
+          window.event.cancelBubble = true
+        }
+      }
+    })
   },
   mounted () {
-    /*
-    var c = document.getElementById('myCanvas')
-    var ctx = c.getContext('2d')
-    ctx.scale(1, 1)
+    var canvas = document.getElementById('myCanvas')
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
 
-    function draw () {
-      // ctx.moveTo(500 * Math.random(), 500 * Math.random())
-      // ctx.lineTo(500 * Math.random(), 500 * Math.random())
+    var c = canvas.getContext('2d')
+    c.scale(1, 1)
 
-      ctx.lineWidth = 1 // 2 * Math.random()
-      // ctx.setLineDash([5 * Math.random(), 5 * Math.random()])
-      ctx.strokeStyle = 'rgba(255, 255, 255,' + Math.random() + ')'
+    Math.easeInOutQuad = function (t, b, c, d) {
+      t /= d / 2
+      if (t < 1) return c / 2 * t * t + b
+      t--
 
-      for (var i = 0; i < 125 * Math.random(); i++) {
-        ctx.beginPath()
-        ctx.arc(780 * Math.random(), 500 * Math.random(), 10 * Math.random(), 0, 2 * Math.PI)
-        ctx.stroke()
-      }
-
-      window.requestAnimationFrame(draw)
+      return -c / 2 * (t * (t - 2) - 1) + b
     }
 
-    window.requestAnimationFrame(draw)
-    */
+    /*
+     * Script
+     */
+    var w = canvas.width
+    var h = canvas.height
+    var dots = []
+    var NUM_DOTS = 45
+
+    // update
+    for (var i = 0; i < NUM_DOTS; i++) {
+      dots.push({ 'cx': 0, 'x': w * Math.random(), 'y': h * Math.random(), 'r': 80 * Math.random(), 'o': 0 })
+    }
+
+    function draw (t) {
+      c.clearRect(0, 0, w, h)
+
+      c.lineWidth = 1 // 2 * Math.random()
+      c.fillStyle = 'rgba(255, 87, 34, 1)' // + Math.random() + ')'
+      c.strokeStyle = 'rgba(0, 0, 0, 0.8)'
+
+      // draw
+      for (var i = 0; i < NUM_DOTS; i++) {
+        var d = dots[i]
+        c.beginPath()
+        // var mx = Math.easeInOutQuad(t, d.cx, d.cx - d.x, 2000)
+        // if (i === 0) console.log(d.cx, d.x, mx)
+        // console.log(d.cx)
+        c.arc(d.x, d.y, d.r, 0, 2 * Math.PI)
+        // ctx.stroke()
+        c.fill()
+      }
+
+      // window.requestAnimationFrame(draw)
+    }
+
+    console.log(draw)
+    // window.requestAnimationFrame(draw)
   },
   destroyed () {
     Store.remove_listener('toggle', this.toggle_section)
@@ -307,14 +369,12 @@ export default {
 }
 
 body {
-	font-family: Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif;
+  /* background: linear-gradient(180deg, @backgroundColor, @backgroundColor_second); */
+  background: @backgroundColor;
+  font-family: Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif;
   color: @primaryTextColor;
-	background: @primaryBackground;
-	font-size: @defaultFontSize;
+  font-size: @defaultFontSize;
   overflow: hidden;
-  background: #5e7e8a;
-  background: linear-gradient(190deg, #606163, #415A71);
-  background: linear-gradient(0deg, #716938, #415A71);
 }
 
 /* hack to export the media queries to javascript
@@ -375,19 +435,18 @@ body:before {
 }
 
 .btn-sidebar {
-  text-shadow: 0px 0px 1px black;
   display: none;
   font-size: 2em;
-  color: @primaryAccent;
+  color: @mainColor;
   cursor: pointer;
   z-index: 3;
 
   &:hover {
-    color: darken(@primaryAccent, 10%);
+    color: darken(@accentColor, 10%);
   }
 
   &:active {
-    color: darken(@primaryAccent, 30%);
+    color: darken(@accentColor, 30%);
   }
 }
 
@@ -427,6 +486,7 @@ body:before {
   flex: 2;
   animation: 0.3s ease-out 0.2s 1 normal initAnim;
   animation-fill-mode: backwards;
+  padding: 0 4px;
 }
 
 #right_container {
@@ -451,18 +511,17 @@ button {
   position: relative;
 	border-radius: 0px;
 	cursor: pointer;
-  padding: 6px 20px;
-  width: 85px;
+  padding: 6px 5px;
+  width: 70px;
   margin-right: 3px;
   border-radius: 1px;
-  border: 0px solid @transparentWhite;
+  border: 0px;
   font-family: 'Open Sans';
   color: rgba(255, 255, 255, 0.8);
   text-transform: uppercase;
   font-weight: 700;
   font-size: 0.8em;
-  background-color: transparent;
-  background: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.15));
+  background-color: lighten(@backgroundColor, 10%);
   box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.11);
 
   &:before {
@@ -505,8 +564,8 @@ button {
   position: relative;
   display: flex;
   flex-flow: row;
-  background-color: rgba(255, 255, 255, 0.34);
-  color: white;
+  background: white;
+  color: @mainColor;
   padding: 10px 15px;
   border-radius: 1px;
   max-height: 80%;
@@ -524,7 +583,7 @@ button {
 
 	.right {
     flex: 0.40;
-    border-left: 1px solid rgba(255, 255, 255, 0.27);
+    border-left: 1px solid @mainColor;
 	}
 
 }
@@ -538,97 +597,98 @@ button {
   #editor_panels {
     position: relative;
     height: 100%;
+
+    .proto_panel {
+      background: @mainColor;
+      max-height: 70%;
+      color: black;
+      box-sizing: border-box;
+    	position: relative;
+      width: 100%;
+      border-radius: 2px;
+      margin-bottom: 12px;
+      font-family: 'Open Sans';
+      color: white;
+      border: 0px solid rgba(0, 0, 0, 0);
+      border-radius: 2px;
+      height: 200px;
+      min-height: 30px;
+      overflow: hidden;
+
+      .wrapper {
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      &:hover {
+        border: 0px solid @accentColor;
+
+        .actionbar ul {
+          box-sizing: border-box;
+        }
+      }
+
+      &:hover > ul {
+      }
+
+    	.actionbar {
+        display: flex;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.8em;
+        border-bottom: 0px solid rgba(255, 255, 255, 0.1);
+        width: 100%;
+        min-height: 25px;
+        max-height: 25px;
+        text-transform: uppercase;;
+        font-weight: 700;
+        font-size: 0.7em;
+        box-sizing: border-box;
+
+        & > * {
+          padding: 8px;
+          box-sizing: border-box;
+        }
+
+    	  h1 {
+    	    text-align: left;
+    	    color: rgba(255, 255, 255, 0.3);
+          flex: 1;
+
+    			.filename {
+    				text-decoration: underline;
+    			}
+    	  }
+
+    		ul {
+          display: block;;
+
+    			li {
+    				display: inline-block;
+    				padding: 0px 5px;
+    				cursor: pointer;
+            color: rgba(255, 255, 255, 0.5);
+
+    				&:hover, &.enabled {
+              color: white;
+    				}
+
+    			}
+
+    		}
+    	}
+
+      .content {
+        height: calc(~"100% - 1em");
+        padding: 10px;
+        overflow-y: auto;
+      }
+    }
   }
 }
 
-.proto_panel {
-  max-height: 70%;
-  color: black;
-  box-sizing: border-box;
-	position: relative;
-  width: 100%;
-  border-radius: 2px;
-  margin-bottom: 12px;
-  font-family: 'Open Sans';
-  color: white;
-  border: 1px solid rgba(0, 0, 0, 0.28);
-  /* box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3); */
-  border: 1px solid rgba(0, 0, 0, 0.22);
-  border-radius: 2px;
-  height: 200px;
-  min-height: 30px;
-
-  .wrapper {
-    overflow: hidden;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-
-  &:hover {
-    border: 1px solid @primaryAccent;
-
-    .actionbar ul {
-      box-sizing: border-box;
-    }
-  }
-
-  &:hover > ul {
-  }
-
-	.actionbar {
-    display: flex;
-    font-weight: 700;
-    text-transform: uppercase;
-    font-size: 0.8em;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    width: 100%;
-    min-height: 30px;
-    max-height: 30px;
-    text-transform: uppercase;;
-    font-weight: 700;
-    font-size: 0.7em;
-    box-sizing: border-box;
-
-    & > * {
-      padding: 10px;
-      box-sizing: border-box;
-    }
-
-	  h1 {
-	    text-align: left;
-	    color: rgba(255, 255, 255, 0.3);
-      flex: 1;
-
-			.filename {
-				text-decoration: underline;
-			}
-	  }
-
-		ul {
-      display: block;;
-
-			li {
-				display: inline-block;
-				padding: 0px 5px;
-				cursor: pointer;
-        color: rgba(255, 255, 255, 0.5);
-
-				&:hover, &.enabled {
-          color: white;
-				}
-
-			}
-
-		}
-	}
-
-  .content {
-    height: calc(~"100% - 1em");
-    padding: 10px;
-    overflow-y: auto;
-  }
-}
 
 
 /* always present */
@@ -684,6 +744,10 @@ button {
     display: inline;
   }
 
+  #central_container {
+    padding: 0;
+  }
+
   #left_container {
     display: flex;
     flex-flow: column;
@@ -693,10 +757,9 @@ button {
     padding: 0 5px;
     position: absolute;
     z-index: 100;
-    background: @primaryBackground;
     height: 100%;
-    box-shadow: 0 2px 3px 3px rgba(0,0,0,.22);
     left: 0px;
+    background: @backgroundColor;
 
     &:on {
       left: 0px;

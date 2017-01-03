@@ -70,6 +70,8 @@ export default {
     store.on('device', this.device_update)
     store.on('project_created', this.project_created)
     store.on('project_saved', this.project_saved)
+    store.on('project_run', this.run)
+    store.on('project_editor_save', this.save)
   },
   destroyed () {
     // console.log('editor destroyed')
@@ -127,6 +129,7 @@ export default {
        */
       var that = this
       // run
+      /*
       this.editor.commands.addCommand({
         name: 'run_command',
         bindKey: {
@@ -135,15 +138,13 @@ export default {
           sender: 'editor|cli'
         },
         exec: function (env, args, request) {
-          that.runShortcut = true
-          setTimeout(function () {
-            that.runShortcut = false
-          }, 200)
           that.run()
         }
       })
+      */
 
       // save
+      /*
       this.editor.commands.addCommand({
         name: 'save_command',
         bindKey: {
@@ -160,8 +161,9 @@ export default {
           that.save()
         }
       })
+      */
 
-      // save
+      // live execution
       this.editor.commands.addCommand({
         name: 'liveExecution',
         bindKey: {
@@ -202,6 +204,8 @@ export default {
       })
     },
     run: function () {
+      var that = this
+      console.log('run/stop project')
       // console.log(this.run_button_state + ' project')
 
       // run the project
@@ -213,11 +217,22 @@ export default {
         // this.run_button_state = 'run'
         store.emit('project_action', '/stop')
       }
+
+      // higlihht run button
+      that.runShortcut = true
+      setTimeout(function () {
+        that.runShortcut = false
+      }, 200)
     },
     save: function () {
+      var that = this
       // console.log('save project')
       // this.$log()
       store.emit('project_save', this.tabs)
+      that.saveShortcut = true
+      setTimeout(function () {
+        that.saveShortcut = false
+      }, 200)
     },
     saveas: function () {
       // console.log('saveas project')
@@ -338,7 +353,6 @@ export default {
 #myeditor {
   display: flex;
   flex-direction: column;
-  padding: 0 8px;
   height: 100%;
 
   #project-actions {
@@ -346,7 +360,7 @@ export default {
   }
 
   .shortcut {
-    background: @primaryAccent;
+    background: @accentColor;
   }
 }
 
@@ -359,6 +373,8 @@ export default {
   display: flex;
   flex-direction: column;
   border-bottom: 0px;
+  border-radius: 2px 2px 0 0;
+  overflow: hidden;
 
   &.slide {
     transform: translateY(420px);
@@ -371,16 +387,19 @@ export default {
   #nav_tabs {
     display: flex;
     flex-flow: row nowrap;
-    background-color: white;
+    background-color: @mainColor;
     border-bottom: 0px;
-    border-radius: 1px;
     padding-left: 0;
     margin-bottom: 0;
+    height: 35px;
+    border-bottom: 2px solid @accentColor;
 
     #tabs {
       flex: 2;
       list-style: none;
-      color: black;
+      color: @primaryTextColor;
+      font-weight: 600;
+      font-size: 0.8em;
 
       li {
         position: relative;
@@ -388,7 +407,7 @@ export default {
         padding: 12px 20px;
         cursor: pointer;
         .anim-fast;
-        border-bottom: 4px solid @transparent;
+        border-bottom: 3px solid @transparent;
         text-overflow: ellipsis;
         overflow: hidden;
         max-width: 100px;
@@ -397,11 +416,11 @@ export default {
         box-sizing: border-box;
 
         &.active {
-           border-bottom: 4px solid @primaryAccent;
+           background-color: rgba(0, 0, 0, 0.1);
         }
 
         &:hover {
-          background-color: rgba(0, 0, 0, 0.1);
+          background-color: rgba(0, 0, 0, 0.2);
 
           .close {
             display: block;
@@ -417,7 +436,8 @@ export default {
         }
 
         &.isModified {
-          border-color: #E91E63;
+          border-color: @accentColor;
+          font-style: italic;
         }
 
         .close {
@@ -452,11 +472,10 @@ export default {
 
   #project_name {
     cursor: pointer;
-    background: linear-gradient(0deg, #f5d328, rgba(245, 211, 40, 0.5));
     font-size: 0.7em;
     padding: 0px 10px;
     margin-right: 5px;
-    color: black;
+    color: rgba(255, 255, 255, 0.8);
     min-width: 50px;
     text-align: left;
     display: flex;
@@ -522,14 +541,14 @@ export default {
 }
 
 .ace_editor.ace_autocomplete .ace_marker-layer .ace_active-line {
-  background-color: @primaryAccent;
+  background-color: @accentColor;
 }
 
 .execute_code_highlight {
-    background: fade(@primaryAccent, 50%);
+    background: fade(@accentColor, 50%);
     position: absolute;
     width: calc(~"100% - 5px") !important;
-    border: 1px solid @primaryAccent;
+    border: 1px solid @accentColor;
     left: 0 !important;
 }
 

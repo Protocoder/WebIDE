@@ -108,12 +108,11 @@ export default {
       padding: 0.3em;
       font-size: 1em;
       font-weight: 400;
-      color: #e8e8e8;
 
       &:hover, &.selected {
-        background-color: rgba(255, 255, 255, 0.69);
+        background-color: @mainColor;
         border-radius: 1px;
-        color: black;
+        color: white;
       }
 
       &:active {
@@ -124,10 +123,10 @@ export default {
 
   .left {
     h1 {
-      color: @primaryAccent;
+      color: @mainColor;
       font-weight: 600;
       padding: 5px 0px;;
-      border-bottom: 0px solid @primaryAccent;
+      border-bottom: 0px solid @accentColor;
       margin-bottom: 0px;
       text-transform: uppercase;
     }
@@ -138,7 +137,6 @@ export default {
   }
   .right {
   	text-align: center;
-
 
     .project_info {
       display: none;

@@ -25,12 +25,12 @@ h1.logo {
   font-weight: 100;
   margin: 23px 0em 33px 0px;
 
-  color: rgba(255, 255, 255, 0.1);
+  color: darken(@primaryTextColor, 60%);
   font-weight: 800;
   text-align: center;
 
   .accent {
-    color: @primaryAccent;
+    color: @accentColor;
     font-weight: 500;
   }
 

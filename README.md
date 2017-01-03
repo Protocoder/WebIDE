@@ -1,6 +1,4 @@
-# WebIDE
-
-> A Vue.js project
+# Protocoder WebIDE
 
 ## Build Setup
 

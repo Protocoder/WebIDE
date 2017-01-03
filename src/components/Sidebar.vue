@@ -67,7 +67,7 @@ export default {
 #sidebar {
   order: 2;
   flex: 2;
-  color: @secondaryAccent;
+  color: @primaryTextColor;
   user-select: none;
 
   /* menu */
@@ -92,16 +92,16 @@ export default {
        font-family: 'Open Sans';
        font-weight: 700;
        font-size: 0.7em;
-       color: #FFFFFF;
        background: transparent linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0)) repeat scroll 0% 0%;
-       border-left: 2px solid transparent;
+       border: 1px solid transparent;
 
        &:hover, &.selected {
-         background-color: rgba(255, 255, 255, 1);
-         color: black;
+         border-color: rgba(255, 255, 255, 0.8);
+         /* background-color: @accentColor; */
+         /* background-color: rgba(255, 255, 255, 1); */
+         color: rgba(255, 255, 255, 1);
          border-radius: 2px;
-         background: transparent linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0)) repeat scroll 0% 0%;
-         color: white;
+         /* background: transparent linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0)) repeat scroll 0% 0%; */
 
          .icon_box {
            color: pink;

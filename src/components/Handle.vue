@@ -86,16 +86,28 @@ export default {
   z-index: 2;
   border-radius: 1px;
 
+
+  &.vertical, &.horizontal  {
+      &:hover {
+        cursor: col-resize;
+        background: fade(@accentColor, 82%);
+      }
+
+      &:active {
+        background: @accentColor;
+      }
+  }
+
   &.vertical {
     width: 5px;
     height: 100%;
-    left: -2px;
+    left: -1px;
     top: 62px;
 
     &:hover {
       cursor: col-resize;
-      background: rgba(255, 255, 255, 0.2);
     }
+
   }
 
   &.horizontal {
@@ -106,12 +118,7 @@ export default {
 
     &:hover {
       cursor: row-resize;
-      background: rgba(255, 255, 255, 0.2);
     }
-  }
-
-  &:active {
-    background: rgba(255, 255, 255, 0.5);
   }
 
 }

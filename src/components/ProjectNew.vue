@@ -85,7 +85,6 @@ export default {
   label {
     font-size: 1em;
     line-height: 2em;
-    color: rgba(255, 255, 255, 0.59);
   }
 
   select, input {
@@ -93,11 +92,12 @@ export default {
     margin: 8px 0px 28px 0px;
     width: 100%;
     border-radius: 2px;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: @mainColor;
     border: none;
     width: 100%;
     outline: none;
     box-sizing: border-box;
+    color: @primaryTextColor;
   }
 
   .login_bottom {

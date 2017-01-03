@@ -46,7 +46,7 @@ export default {
     padding: 8px 18px;
     background: rgba(0, 0, 0, 0.8);
     border-radius: 58px;
-    color: @primaryAccent;
+    color: @accentColor;
   }
 
   #reload {

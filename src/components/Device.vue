@@ -1,10 +1,10 @@
 <template>
   <div id = "device_info" v-show = "device_properties.connected" v-on:click = "togglepopup">
-    <p> Connected to </p>
     <div id = "device_frame" v-bind:class = "{ 'rotate' : is_rotated }" >
       <div id = "device_screen"> </div>
     </div>
     <!-- <i class = "fa fa-mobile fa-5x"></i> -->
+    <p> Connected to </p>
     <p v-if = "ready"> {{ device_properties.info.device['model name'] }} </p>
 
     <popup v-if = "showpopover" arrow = "left" :posx = "posx" :posy = "posy">
@@ -37,12 +37,13 @@ export default {
       ready: false,
       showpopover: false,
       device_properties: {
+        connected: true,
         name: 'motorola',
         screensize: '960x800 landscape',
         battery: '25%',
         network_connection: 'Wifi',
         internet_connection: 'yes',
-        orientation: 'landscape'
+        orientation: 'portrait'
       },
       posx: '0px'
     }
@@ -61,6 +62,9 @@ export default {
         this.device_properties = data
         this.ready = true
       }
+    },
+    showinfo: function () {
+      this.showpopover = !this.showpopover
     }
   },
   computed: {
@@ -70,6 +74,7 @@ export default {
   },
   created () {
     store.on('device', this.device_update)
+    store.on('toggle_device_info', this.showinfo)
   },
   destroyed () {
     store.remove_listener('device', this.device_update)
@@ -95,7 +100,7 @@ export default {
   box-sizing: border-box;
 
   &:hover {
-    background: transparent linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0)) repeat scroll 0% 0%;
+    background: rgba(255, 255, 255, 0.1);
   }
 
   .title {
@@ -108,9 +113,9 @@ export default {
 
   p {
   	margin: 0 0 0px;
-    font-weight: 300;
+    font-weight: 600;
     text-transform: lowercase;
-    font-size: 0.7em;
+    font-size: 0.8em;
   }
 
   i {
@@ -124,11 +129,11 @@ export default {
 
 #device_frame {
   .all-transitions;
-  background: transparent none repeat scroll 0% 0%;
-  border: 1px solid rgba(255, 255, 255, 0.53);
+  background: darken(@mainColor, 20%);
+  border: 0;
+  padding: 3px 2px 6px 2px;
   margin: 10px auto;
-  padding: 2px 1px 6px 1px;
-  border-radius: 2px;
+  border-radius: 1px;
   display: inline-block;
 
   &.rotate {
@@ -143,8 +148,8 @@ export default {
     .all-transitions;
     width: 26px;
     height: 42px;
-    background: rgba(255, 255, 255, 0.2) none repeat scroll 0% 0%;
-    border-radius: 1px;
+    background: lighten(@backgroundColor, 10%);
+    border-radius: 0px;
   }
 }
 

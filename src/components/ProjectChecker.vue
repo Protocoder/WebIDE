@@ -106,10 +106,10 @@ export default {
   font-family: 'Open Sans';
 
   h1 {
-    color: @primaryAccent;
+    color: @accentColor;
     font-weight: 600;
     padding: 5px 0px;;
-    border-bottom: 0px solid @primaryAccent;
+    border-bottom: 0px solid @accentColor;
     margin-bottom: 5px;
     text-transform: uppercase;
   }

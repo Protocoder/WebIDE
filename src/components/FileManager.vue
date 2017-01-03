@@ -1,15 +1,15 @@
 <template>
   <div id = "file_manager"
-    class = "proto_panel"
+    class = "proto_panel main_shadow"
     >
       <div class = "wrapper">
       <div class = "actionbar">
         <h1>Files</h1>
-        <input class = "path" v-model = "current_folder" />
+        <input class = "path" v-model = "current_folder" readonly />
         <ul>
           <!-- <li class="fa fa-folder" for = "get_file"></li> -->
-          <li class="fa fa-plus" v-on:click = "show_create_file_dialog"></li>
-          <li class="fa fa-upload" for = "get_file" v-on:click = "show_upload_dialog"></li>
+          <li title = "Create a file or folder" class = "fa fa-plus" v-on:click = "show_create_file_dialog"></li>
+          <li title = "Upload a file" class = "fa fa-upload" for = "get_file" v-on:click = "show_upload_dialog"></li>
         </ul>
         <div id = "upload_container" v-bind:class = "{'show' : isDnd, 'todrop': isReadyToDrop }">
           <p>Drop the files here</p>
@@ -357,6 +357,18 @@ export default {
   height: 150px;
   position: relative;
 
+  .actionbar {
+    input {
+      height: 25px;
+      margin: 0;
+      border-radius: 0;
+      color: #2d383d;
+    }
+  }
+  .content {
+    background: rgba(0, 0, 0, 0.48);
+  }
+
   .path {
     background: rgba(0, 0, 0, 0.15);
     outline: none;
@@ -380,7 +392,7 @@ export default {
 
   #upload_container {
     display: none;
-    background: fadeout(@primaryAccent, 20%);
+    background: fadeout(@accentColor, 20%);
     position: absolute;
     top: 0px;
     right: 0;
@@ -520,8 +532,9 @@ export default {
   .new_file {
     display: flex;
     align-items: center;
-    background: @primaryAccent;
+    background: @accentColor;
     padding: 5px;
+    margin: 0px 1px;
 
     & > * {
       font-family: 'Open Sans Condensed';

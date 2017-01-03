@@ -1,17 +1,17 @@
 <template>
-  <div id = "console" class = "proto_panel">
+  <div id = "console" class = "proto_panel main_shadow">
     <div class = "wrapper">
       <div class = "actionbar">
         <h1>console</h1>
         <ul>
-          <li class="fa fa-clock-o" v-on:click="showTime()" v-bind:class="{'enabled':showingTime}"></li>
-          <li class="fa fa-lock" v-on:click="toggleLock()" v-bind:class="{'enabled':lock}"></li>
-          <li class="fa fa-trash" v-on:click="clear()"></li>
+          <li title = "Show time" class = "fa fa-clock-o" v-on:click="showTime()" v-bind:class="{'enabled':showingTime}"></li>
+          <li title = "Lock scrolling" class = "fa fa-lock" v-on:click="toggleLock()" v-bind:class="{'enabled':lock}"></li>
+          <li title = "Clear console" class = "fa fa-trash" v-on:click="clear()"></li>
         </ul>
       </div>
       <div class = "content">
         <ul ref = "log">
-          <li v-for="log in slicedLogs" v-bind:class="log.action"><span class = "time" v-bind:class = "{'off': !showingTime}">{{log.time}}</span> {{log.text}} </li>
+          <li v-for="log in slicedLogs" v-bind:class="log.action"><span class = "time" v-bind:class = "{'off': !showingTime}">{{log.time}}</span><span v-html = "log.text"></span></li>
         </ul>
       </div>
     </div>
@@ -103,6 +103,10 @@ export default {
   background: rgba(0, 0, 0, 0.68);
   color: white;
   height: 300px;
+
+  .content {
+    background: rgba(0, 0, 0, 0.8);
+  }
 
   .content ul {
     height: calc(~"100%");

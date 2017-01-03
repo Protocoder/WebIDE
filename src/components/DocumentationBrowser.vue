@@ -131,7 +131,6 @@ export default {
   h1 {
     font-size: 1.1em;
     text-transform: uppercase;
-    color: #555;
     font-weight: 700;
   }
 
@@ -144,10 +143,11 @@ export default {
     font-weight: 600;
     font-size: 1.1em;
     padding: 1px 0px 4px 3px;
+    color: @mainColor;
   }
 
   .header {
-    background: #ddd;
+    background: @accentColor;
     align-items: center;
     color: black;
     padding: 0;
@@ -163,6 +163,8 @@ export default {
       border-radius: 2px;
       background: transparent;
       width: 100%;
+      color: @secondaryTextColor;
+      box-sizing: border-box;
     }
   }
 
@@ -205,7 +207,7 @@ export default {
           }
 
           p:hover {
-            background: @primaryAccent;
+            background: @accentColor;
           }
         }
       }
